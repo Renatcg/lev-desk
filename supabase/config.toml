@@ -2,3 +2,9 @@ project_id = "vxizwhmqvmfoplthjdvu"
 
 [functions.setup-master-user]
 verify_jwt = false
+
+[functions.ai-project-assistant]
+verify_jwt = true
+
+[functions.transcribe-audio]
+verify_jwt = true

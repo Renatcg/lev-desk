@@ -1,11 +1,17 @@
 import { useState } from "react";
-import { Plus, MoreVertical } from "lucide-react";
+import { Plus, MoreVertical, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { AIProjectAssistant } from "@/components/AIProjectAssistant";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Projects = () => {
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const { toast } = useToast();
+  
   const stages = [
     { id: "viability", name: "Viabilidade", color: "bg-accent" },
     { id: "project", name: "Projeto", color: "bg-sky-100" },
@@ -58,6 +64,46 @@ const Projects = () => {
     delivery: [],
   };
 
+  const handleProjectExtracted = async (data: any) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('company_id')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile?.company_id) throw new Error('Company not found');
+
+      const { error } = await supabase.from('projects').insert({
+        name: data.name,
+        address: data.address,
+        area: data.area,
+        status: data.status,
+        description: data.description,
+        company_id: profile.company_id,
+        created_by: user.id,
+        metadata: data.extracted_data || {}
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Projeto criado!',
+        description: `${data.name} foi adicionado ao pipeline.`
+      });
+    } catch (error: any) {
+      console.error('Error creating project:', error);
+      toast({
+        title: 'Erro',
+        description: error.message || 'Erro ao criar projeto',
+        variant: 'destructive'
+      });
+    }
+  };
+
   return (
     <div className="space-y-6 pb-8">
       <div className="flex items-center justify-between">
@@ -69,11 +115,23 @@ const Projects = () => {
             Acompanhe o progresso dos empreendimentos em cada etapa
           </p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90">
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Empreendimento
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowAIAssistant(true)} variant="outline">
+            <Sparkles className="mr-2 h-4 w-4" />
+            Cadastrar com IA
+          </Button>
+          <Button className="bg-primary hover:bg-primary/90">
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Empreendimento
+          </Button>
+        </div>
       </div>
+
+      <AIProjectAssistant
+        open={showAIAssistant}
+        onOpenChange={setShowAIAssistant}
+        onProjectExtracted={handleProjectExtracted}
+      />
 
       {/* Kanban Board */}
       <div className="flex gap-4 overflow-x-auto pb-4">
