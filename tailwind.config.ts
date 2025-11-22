@@ -57,6 +57,14 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        lev: {
+          brick: "hsl(var(--primary))",
+          earth: "hsl(var(--secondary))",
+          dark: "hsl(var(--lev-dark))",
+          sky: "hsl(var(--accent))",
+          sand: "hsl(var(--muted))",
+          cement: "hsl(var(--lev-cement))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
