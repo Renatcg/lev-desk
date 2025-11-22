@@ -53,6 +53,63 @@ export type Database = {
         }
         Relationships: []
       }
+      documents: {
+        Row: {
+          bucket_name: string
+          company_id: string | null
+          created_at: string
+          file_path: string
+          id: string
+          metadata: Json | null
+          mime_type: string
+          name: string
+          size: number | null
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          bucket_name: string
+          company_id?: string | null
+          created_at?: string
+          file_path: string
+          id?: string
+          metadata?: Json | null
+          mime_type: string
+          name: string
+          size?: number | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          bucket_name?: string
+          company_id?: string | null
+          created_at?: string
+          file_path?: string
+          id?: string
+          metadata?: Json | null
+          mime_type?: string
+          name?: string
+          size?: number | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -102,6 +159,63 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          address: string | null
+          area: number | null
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          area?: number | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          area?: number | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
