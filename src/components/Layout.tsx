@@ -1,7 +1,10 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Building2, LayoutDashboard, MapPin, Users, FileText, Briefcase, Settings } from "lucide-react";
+import { Building2, LayoutDashboard, MapPin, Users, FileText, Briefcase, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import levLogo from "@/assets/lev-logo.jpg";
 
 interface LayoutProps {
@@ -10,6 +13,16 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Logout realizado",
+      description: "Você saiu do sistema com sucesso.",
+    });
+  };
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -56,15 +69,26 @@ const Layout = ({ children }: LayoutProps) => {
 
           {/* User Profile */}
           <div className="border-t p-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mb-3">
               <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold">
-                LA
+                {user?.email?.charAt(0).toUpperCase() || "U"}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">LEV Admin</p>
-                <p className="text-xs text-muted-foreground truncate">admin@lev.com.br</p>
+                <p className="text-sm font-medium truncate">
+                  {user?.user_metadata?.name || "Usuário"}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
               </div>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sair
+            </Button>
           </div>
         </div>
       </aside>
