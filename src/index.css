@@ -17,48 +17,48 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 20%;
 
-    /* LEV Brand Colors */
-    --primary: 10 75% 55%; /* Brick/Tijolo #E35336 */
+    /* LEV Brand Colors - Cool & Pastel Palette */
+    --primary: 205 40% 60%; /* Blue Gray Pastel #6B9AC4 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 25 8% 31%; /* Earth/Terra #58504B */
+    --secondary: 210 12% 40%; /* Slate Gray #5A6570 */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 42 37% 88%; /* Sand/Areia #EBE4D5 */
-    --muted-foreground: 0 0% 40%;
+    --muted: 210 18% 93%; /* Light Blue Gray #E8ECEF */
+    --muted-foreground: 210 12% 40%;
 
-    --accent: 191 51% 87%; /* Sky/Céu #CDECF4 */
+    --accent: 185 35% 62%; /* Pastel Aqua #7EBDC3 */
     --accent-foreground: 0 0% 20%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 10 75% 55%;
+    --border: 210 15% 85%;
+    --input: 210 15% 85%;
+    --ring: 205 40% 60%;
 
     --radius: 0.75rem;
 
     /* Additional LEV Colors */
-    --lev-dark: 0 0% 20%; /* Black #333333 */
-    --lev-cement: 0 0% 64%; /* Cement #A3A3A3 */
+    --lev-dark: 210 15% 25%; /* Dark Blue Gray #3A424D */
+    --lev-cement: 210 15% 67%; /* Medium Blue Gray #A8B4BE */
     
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(10 75% 55%), hsl(10 75% 65%));
-    --gradient-hero: linear-gradient(135deg, hsl(10 75% 55%), hsl(25 8% 31%));
+    /* Gradients - Cool Tones */
+    --gradient-primary: linear-gradient(135deg, hsl(205 40% 60%), hsl(205 40% 70%));
+    --gradient-hero: linear-gradient(135deg, hsl(205 40% 60%), hsl(210 12% 40%));
     
-    /* Shadows */
-    --shadow-soft: 0 2px 8px -2px hsl(10 75% 55% / 0.15);
-    --shadow-medium: 0 4px 16px -4px hsl(10 75% 55% / 0.2);
+    /* Shadows - Cool Tones */
+    --shadow-soft: 0 2px 8px -2px hsl(205 40% 60% / 0.15);
+    --shadow-medium: 0 4px 16px -4px hsl(205 40% 60% / 0.2);
     
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 25 8% 31%;
-    --sidebar-primary: 10 75% 55%;
+    --sidebar-background: 210 18% 98%;
+    --sidebar-foreground: 210 12% 40%;
+    --sidebar-primary: 205 40% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 42 37% 88%;
-    --sidebar-accent-foreground: 0 0% 20%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 10 75% 55%;
+    --sidebar-accent: 210 18% 93%;
+    --sidebar-accent-foreground: 210 12% 30%;
+    --sidebar-border: 210 15% 85%;
+    --sidebar-ring: 205 40% 60%;
   }
 
   .dark {
@@ -71,33 +71,33 @@ All colors MUST be HSL.
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 10 75% 55%;
+    --primary: 205 40% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 25 8% 20%;
+    --secondary: 210 12% 25%;
     --secondary-foreground: 0 0% 95%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 210 15% 15%;
+    --muted-foreground: 210 10% 65%;
 
-    --accent: 191 51% 25%;
+    --accent: 185 35% 30%;
     --accent-foreground: 0 0% 95%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 95%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 10 75% 55%;
+    --border: 210 15% 20%;
+    --input: 210 15% 20%;
+    --ring: 205 40% 55%;
     
-    --sidebar-background: 0 0% 10%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 10 75% 55%;
+    --sidebar-background: 210 15% 10%;
+    --sidebar-foreground: 210 10% 95%;
+    --sidebar-primary: 205 40% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 10 75% 55%;
+    --sidebar-accent: 210 15% 15%;
+    --sidebar-accent-foreground: 210 10% 95%;
+    --sidebar-border: 210 15% 20%;
+    --sidebar-ring: 205 40% 55%;
   }
 }
 
