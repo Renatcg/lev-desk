@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import levLogo from "@/assets/lev-logo.jpg";
+import levLogo from "@/assets/lev-logo.png";
 
 const Login = () => {
   const navigate = useNavigate();

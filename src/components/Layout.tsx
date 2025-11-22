@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import levLogo from "@/assets/lev-logo.jpg";
+import levLogo from "@/assets/lev-logo.png";
 
 interface LayoutProps {
   children: ReactNode;
