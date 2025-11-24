@@ -110,6 +110,175 @@ export type Database = {
           },
         ]
       }
+      media_budgets: {
+        Row: {
+          actual_amount: number
+          budgeted_amount: number
+          created_at: string
+          id: string
+          month_year: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          actual_amount?: number
+          budgeted_amount?: number
+          created_at?: string
+          id?: string
+          month_year: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          actual_amount?: number
+          budgeted_amount?: number
+          created_at?: string
+          id?: string
+          month_year?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_budgets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_categories: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          order_index: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          order_index?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          order_index?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      media_insertions: {
+        Row: {
+          actual_cost: number | null
+          created_at: string
+          id: string
+          insertion_date: string
+          media_piece_id: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          actual_cost?: number | null
+          created_at?: string
+          id?: string
+          insertion_date: string
+          media_piece_id: string
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          actual_cost?: number | null
+          created_at?: string
+          id?: string
+          insertion_date?: string
+          media_piece_id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_insertions_media_piece_id_fkey"
+            columns: ["media_piece_id"]
+            isOneToOne: false
+            referencedRelation: "media_pieces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_pieces: {
+        Row: {
+          category_id: string
+          channel: string
+          cost_per_insertion: number | null
+          created_at: string
+          end_date: string
+          global_cost: number | null
+          id: string
+          media_type: string
+          name: string
+          piece_type: string
+          project_id: string
+          schedule_time: string | null
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          channel: string
+          cost_per_insertion?: number | null
+          created_at?: string
+          end_date: string
+          global_cost?: number | null
+          id?: string
+          media_type: string
+          name: string
+          piece_type: string
+          project_id: string
+          schedule_time?: string | null
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          channel?: string
+          cost_per_insertion?: number | null
+          created_at?: string
+          end_date?: string
+          global_cost?: number | null
+          id?: string
+          media_type?: string
+          name?: string
+          piece_type?: string
+          project_id?: string
+          schedule_time?: string | null
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_pieces_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "media_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_pieces_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
