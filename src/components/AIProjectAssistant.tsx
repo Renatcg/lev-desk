@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { useAIAssistant } from '@/hooks/useAIAssistant';
 import { Mic, Upload, Send, Loader2, FileText, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+const MAX_RECORDING_TIME = 120; // 2 minutos em segundos
 
 interface AIProjectAssistantProps {
   open: boolean;
@@ -16,10 +18,13 @@ interface AIProjectAssistantProps {
 export const AIProjectAssistant = ({ open, onOpenChange, onProjectExtracted }: AIProjectAssistantProps) => {
   const [input, setInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoStopTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
   const { messages, isProcessing, extractedData, sendMessage, transcribeAudio, reset } = useAIAssistant();
@@ -54,12 +59,23 @@ export const AIProjectAssistant = ({ open, onOpenChange, onProjectExtracted }: A
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
+      setRecordingTime(0);
 
       mediaRecorder.ondataavailable = (event) => {
         audioChunksRef.current.push(event.data);
       };
 
       mediaRecorder.onstop = async () => {
+        // Clear timers
+        if (recordingTimerRef.current) {
+          clearInterval(recordingTimerRef.current);
+          recordingTimerRef.current = null;
+        }
+        if (autoStopTimerRef.current) {
+          clearTimeout(autoStopTimerRef.current);
+          autoStopTimerRef.current = null;
+        }
+
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         
         console.log('Audio recorded, size:', audioBlob.size, 'bytes');
@@ -87,10 +103,39 @@ export const AIProjectAssistant = ({ open, onOpenChange, onProjectExtracted }: A
         }
         
         stream.getTracks().forEach(track => track.stop());
+        setRecordingTime(0);
       };
 
       mediaRecorder.start();
       setIsRecording(true);
+
+      // Start timer to update recording time every second
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime(prev => {
+          const newTime = prev + 1;
+          // Show warning when approaching limit
+          if (newTime === 110) {
+            toast({
+              title: '10 segundos restantes',
+              description: 'A gravação será interrompida automaticamente',
+            });
+          }
+          return newTime;
+        });
+      }, 1000);
+
+      // Auto-stop after 2 minutes
+      autoStopTimerRef.current = setTimeout(() => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+          mediaRecorderRef.current.stop();
+          setIsRecording(false);
+          toast({
+            title: 'Tempo limite atingido',
+            description: 'Gravação de 2 minutos concluída',
+          });
+        }
+      }, MAX_RECORDING_TIME * 1000);
+
     } catch (error) {
       console.error('Error starting recording:', error);
       toast({
@@ -106,6 +151,24 @@ export const AIProjectAssistant = ({ open, onOpenChange, onProjectExtracted }: A
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
+  };
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+      if (autoStopTimerRef.current) {
+        clearTimeout(autoStopTimerRef.current);
+      }
+    };
+  }, []);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleConfirm = () => {
@@ -205,14 +268,24 @@ export const AIProjectAssistant = ({ open, onOpenChange, onProjectExtracted }: A
                 <Upload className="h-4 w-4" />
               </Button>
 
-              <Button
-                size="icon"
-                variant={isRecording ? "destructive" : "outline"}
-                onClick={isRecording ? stopRecording : startRecording}
-                disabled={isProcessing}
-              >
-                <Mic className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="icon"
+                  variant={isRecording ? "destructive" : "outline"}
+                  onClick={isRecording ? stopRecording : startRecording}
+                  disabled={isProcessing}
+                  className={isRecording ? "animate-pulse" : ""}
+                >
+                  <Mic className="h-4 w-4" />
+                </Button>
+                
+                {isRecording && (
+                  <div className="flex items-center gap-2 px-3 py-1 bg-destructive/10 text-destructive rounded-md text-sm font-medium">
+                    <div className="w-2 h-2 bg-destructive rounded-full animate-pulse" />
+                    <span>{formatTime(recordingTime)} / {formatTime(MAX_RECORDING_TIME)}</span>
+                  </div>
+                )}
+              </div>
 
               <Textarea
                 value={input}
