@@ -61,10 +61,31 @@ export const AIProjectAssistant = ({ open, onOpenChange, onProjectExtracted }: A
 
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        const text = await transcribeAudio(audioBlob);
-        if (text) {
-          setInput(prev => prev + (prev ? ' ' : '') + text);
+        
+        console.log('Audio recorded, size:', audioBlob.size, 'bytes');
+        
+        if (audioBlob.size < 1000) {
+          toast({
+            title: 'Áudio muito curto',
+            description: 'Grave um áudio mais longo',
+            variant: 'destructive'
+          });
+        } else {
+          toast({
+            title: 'Transcrevendo...',
+            description: 'Aguarde enquanto processamos seu áudio'
+          });
+          
+          const text = await transcribeAudio(audioBlob);
+          if (text) {
+            setInput(prev => prev + (prev ? ' ' : '') + text);
+            toast({
+              title: 'Áudio transcrito!',
+              description: 'O texto foi adicionado ao campo de entrada'
+            });
+          }
         }
+        
         stream.getTracks().forEach(track => track.stop());
       };
 

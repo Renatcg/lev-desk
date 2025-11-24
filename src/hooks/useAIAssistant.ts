@@ -111,21 +111,39 @@ export const useAIAssistant = () => {
 
   const transcribeAudio = useCallback(async (audioBlob: Blob): Promise<string> => {
     try {
+      // Check file size before processing (25MB limit)
+      if (audioBlob.size > 25 * 1024 * 1024) {
+        toast({
+          title: 'Áudio muito grande',
+          description: 'O áudio não pode ter mais de 25MB',
+          variant: 'destructive'
+        });
+        return '';
+      }
+
       // Convert blob to base64
       const arrayBuffer = await audioBlob.arrayBuffer();
       const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+      console.log('Sending audio for transcription, size:', audioBlob.size, 'bytes');
 
       const { data, error } = await supabase.functions.invoke('transcribe-audio', {
         body: { audio: base64 }
       });
 
       if (error) throw error;
+      
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      console.log('Transcription received:', data?.text?.substring(0, 50));
       return data.text || '';
     } catch (error: any) {
       console.error('Error transcribing audio:', error);
       toast({
-        title: 'Erro',
-        description: 'Erro ao transcrever áudio',
+        title: 'Erro na transcrição',
+        description: error.message || 'Erro ao transcrever áudio',
         variant: 'destructive'
       });
       return '';
