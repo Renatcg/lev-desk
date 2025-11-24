@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -22,6 +22,14 @@ export const useAIAssistant = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [extractedData, setExtractedData] = useState<ProjectData | null>(null);
   const { toast } = useToast();
+  
+  // Use ref to store current messages to avoid recreating sendMessage
+  const messagesRef = useRef<Message[]>([]);
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   const sendMessage = useCallback(async (content: string, files?: File[]) => {
     try {
@@ -56,10 +64,10 @@ export const useAIAssistant = () => {
         }
       }
 
-      // Call AI assistant
+      // Call AI assistant using ref for current messages
       const { data, error } = await supabase.functions.invoke('ai-project-assistant', {
         body: { 
-          messages: [...messages, userMessage],
+          messages: [...messagesRef.current, userMessage],
           fileUrls: fileUrls.length > 0 ? fileUrls : undefined
         }
       });
@@ -107,7 +115,7 @@ export const useAIAssistant = () => {
     } finally {
       setIsProcessing(false);
     }
-  }, [messages, toast]);
+  }, [toast]);
 
   const transcribeAudio = useCallback(async (audioBlob: Blob): Promise<string> => {
     try {
