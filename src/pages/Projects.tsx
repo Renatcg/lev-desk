@@ -1,14 +1,23 @@
 import { useState } from "react";
-import { Plus, MoreVertical, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Plus, MoreVertical, Sparkles, Calendar, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { AIProjectAssistant } from "@/components/AIProjectAssistant";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const Projects = () => {
+  const navigate = useNavigate();
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const { toast } = useToast();
   
@@ -170,9 +179,32 @@ const Projects = () => {
                               {project.company}
                             </p>
                           </div>
-                          <Button variant="ghost" size="icon" className="h-6 w-6">
-                            <MoreVertical className="h-3 w-3" />
-                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-6 w-6">
+                                <MoreVertical className="h-3 w-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => navigate(`/projects/${project.id}`)}>
+                                Ver Detalhes
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => navigate(`/projects/${project.id}/schedule`)}>
+                                <Calendar className="mr-2 h-4 w-4" />
+                                Cronograma de Tarefas
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => navigate(`/projects/${project.id}/media`)}>
+                                <TrendingUp className="mr-2 h-4 w-4" />
+                                Plano de Mídia
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem>Editar</DropdownMenuItem>
+                              <DropdownMenuItem className="text-destructive">
+                                Arquivar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </CardHeader>
                       <CardContent className="p-4 pt-0 space-y-3">

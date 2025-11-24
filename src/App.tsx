@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import LandBank from "./pages/LandBank";
 import Projects from "./pages/Projects";
+import MediaPlan from "./pages/MediaPlan";
 import Documents from "./pages/Documents";
 import Layout from "./components/Layout";
 import NotFound from "./pages/NotFound";
@@ -50,6 +51,16 @@ const App = () => (
                 <ProtectedRoute>
                   <Layout>
                     <Projects />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/projects/:id/media"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <MediaPlan />
                   </Layout>
                 </ProtectedRoute>
               }
