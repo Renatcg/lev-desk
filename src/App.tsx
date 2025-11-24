@@ -10,6 +10,7 @@ import LandBank from "./pages/LandBank";
 import Projects from "./pages/Projects";
 import MediaPlan from "./pages/MediaPlan";
 import Documents from "./pages/Documents";
+import Settings from "./pages/Settings";
 import Layout from "./components/Layout";
 import NotFound from "./pages/NotFound";
 
@@ -106,10 +107,7 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <div className="text-center py-12">
-                      <h2 className="text-2xl font-bold mb-2">Configurações</h2>
-                      <p className="text-muted-foreground">Em desenvolvimento</p>
-                    </div>
+                    <Settings />
                   </Layout>
                 </ProtectedRoute>
               }
