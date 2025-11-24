@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, MoreVertical, Sparkles, Calendar, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -19,6 +19,8 @@ import { supabase } from "@/integrations/supabase/client";
 const Projects = () => {
   const navigate = useNavigate();
   const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   
   const stages = [
@@ -29,49 +31,38 @@ const Projects = () => {
     { id: "delivery", name: "Entrega", color: "bg-primary/10" },
   ];
 
-  const projectCards = {
-    viability: [
-      {
-        id: 1,
-        name: "Residencial Parque Verde",
-        company: "Construtora ABC",
-        progress: 30,
-        assignees: ["JD", "MS"],
-        alerts: 1,
-      },
-    ],
-    project: [
-      {
-        id: 2,
-        name: "Condomínio das Águas",
-        company: "Construtora ABC",
-        progress: 45,
-        assignees: ["JD", "TC"],
-        alerts: 2,
-      },
-    ],
-    approvals: [
-      {
-        id: 3,
-        name: "Residencial Vista Verde",
-        company: "Construtora ABC",
-        progress: 65,
-        assignees: ["MS"],
-        alerts: 0,
-      },
-    ],
-    sales: [
-      {
-        id: 4,
-        name: "Edifício Horizonte",
-        company: "Incorporadora XYZ",
-        progress: 80,
-        assignees: ["TC", "JD"],
-        alerts: 0,
-      },
-    ],
-    delivery: [],
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  const loadProjects = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*, companies(name)')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setProjects(data || []);
+    } catch (error: any) {
+      console.error('Error loading projects:', error);
+      toast({
+        title: 'Erro',
+        description: 'Erro ao carregar projetos',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const projectsByStage = useMemo(() => {
+    return stages.reduce((acc, stage) => {
+      acc[stage.id] = projects.filter(p => p.status === stage.id);
+      return acc;
+    }, {} as Record<string, any[]>);
+  }, [projects]);
 
   const handleProjectExtracted = async (data: any) => {
     try {
@@ -103,6 +94,9 @@ const Projects = () => {
         title: 'Projeto criado!',
         description: `${data.name} foi adicionado ao pipeline.`
       });
+      
+      // Recarregar projetos
+      loadProjects();
     } catch (error: any) {
       console.error('Error creating project:', error);
       toast({
@@ -153,7 +147,7 @@ const Projects = () => {
                   <div className={`w-3 h-3 rounded-full ${stage.color}`} />
                   <h3 className="font-semibold text-foreground">{stage.name}</h3>
                   <Badge variant="secondary" className="ml-2">
-                    {projectCards[stage.id as keyof typeof projectCards].length}
+                    {projectsByStage[stage.id]?.length || 0}
                   </Badge>
                 </div>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -163,8 +157,11 @@ const Projects = () => {
 
               {/* Cards */}
               <div className="space-y-3">
-                {projectCards[stage.id as keyof typeof projectCards].map(
-                  (project) => (
+                {loading ? (
+                  <div className="text-center text-muted-foreground text-sm py-8">
+                    Carregando...
+                  </div>
+                ) : projectsByStage[stage.id]?.map((project) => (
                     <Card
                       key={project.id}
                       className="cursor-move hover:shadow-md transition-shadow"
@@ -176,7 +173,7 @@ const Projects = () => {
                               {project.name}
                             </h4>
                             <p className="text-xs text-muted-foreground">
-                              {project.company}
+                              {project.companies?.name || 'Sem empresa'}
                             </p>
                           </div>
                           <DropdownMenu>
@@ -208,39 +205,11 @@ const Projects = () => {
                         </div>
                       </CardHeader>
                       <CardContent className="p-4 pt-0 space-y-3">
-                        {/* Progress */}
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">Progresso</span>
-                            <span className="font-medium">{project.progress}%</span>
-                          </div>
-                          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary transition-all"
-                              style={{ width: `${project.progress}%` }}
-                            />
-                          </div>
-                        </div>
-
                         {/* Footer */}
                         <div className="flex items-center justify-between">
-                          <div className="flex -space-x-2">
-                            {project.assignees.map((assignee, idx) => (
-                              <Avatar
-                                key={idx}
-                                className="h-6 w-6 border-2 border-background"
-                              >
-                                <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                                  {assignee}
-                                </AvatarFallback>
-                              </Avatar>
-                            ))}
+                          <div className="text-xs text-muted-foreground">
+                            {project.address || 'Sem endereço'}
                           </div>
-                          {project.alerts > 0 && (
-                            <Badge variant="destructive" className="text-xs">
-                              {project.alerts} alerta{project.alerts > 1 ? "s" : ""}
-                            </Badge>
-                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -248,8 +217,7 @@ const Projects = () => {
                 )}
 
                 {/* Empty State */}
-                {projectCards[stage.id as keyof typeof projectCards].length ===
-                  0 && (
+                {!loading && projectsByStage[stage.id]?.length === 0 && (
                   <div className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground text-sm">
                     Nenhum empreendimento nesta etapa
                   </div>
