@@ -91,17 +91,16 @@ export function MediaPlanGanttChart({
               <div className="w-80 p-3 font-semibold text-sm">Peça de Mídia</div>
             </div>
             <div className="flex">
-              {dateRange.map((date) => (
-                <div
-                  key={date.toISOString()}
-                  className="w-20 p-2 text-center text-xs font-medium border-r border-border"
-                >
-                  <div>{format(date, 'dd', { locale: ptBR })}</div>
-                  <div className="text-muted-foreground">
-                    {format(date, 'EEE', { locale: ptBR })}
-                  </div>
-                </div>
-              ))}
+            {dateRange.map((date) => (
+              <div
+                key={date.toISOString()}
+                className="w-10 h-28 flex-shrink-0 flex items-center justify-center border-r border-border"
+              >
+                <span className="transform -rotate-90 whitespace-nowrap text-xs font-medium">
+                  {format(date, "dd MMM", { locale: ptBR })}
+                </span>
+              </div>
+            ))}
             </div>
           </div>
 
@@ -155,7 +154,7 @@ export function MediaPlanGanttChart({
                             <TooltipTrigger asChild>
                               <div
                                 className={`
-                                  w-20 h-16 border-r border-border flex items-center justify-center
+                                  w-10 h-16 flex-shrink-0 border-r border-border flex items-center justify-center
                                   cursor-pointer transition-colors
                                   ${isActive ? 'bg-primary/5' : 'bg-muted/20'}
                                   ${totalInsertions > 0 ? 'bg-primary/20 font-semibold' : ''}
@@ -164,7 +163,7 @@ export function MediaPlanGanttChart({
                                 onClick={() => onCellClick?.(piece.id, date)}
                               >
                                 {totalInsertions > 0 && (
-                                  <span className="text-sm">{totalInsertions}</span>
+                                  <span className="text-xs">{totalInsertions}</span>
                                 )}
                               </div>
                             </TooltipTrigger>
