@@ -49,47 +49,43 @@ serve(async (req) => {
       throw new Error("No audio data provided");
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY is not configured");
     }
 
     // Process audio in chunks
     const binaryAudio = processBase64Chunks(audio);
     console.log("Audio size:", binaryAudio.length, "bytes");
 
-    // Use Gemini 2.5 Flash for audio transcription
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
+    // Check file size (OpenAI Whisper has 25MB limit)
+    if (binaryAudio.length > 25 * 1024 * 1024) {
+      return new Response(
+        JSON.stringify({ error: "Áudio muito grande. Limite: 25MB" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Prepare form data for OpenAI Whisper API
+    const formData = new FormData();
+    const blob = new Blob([binaryAudio], { type: 'audio/webm' });
+    formData.append('file', blob, 'audio.webm');
+    formData.append('model', 'whisper-1');
+    formData.append('language', 'pt');
+
+    console.log("Sending to OpenAI Whisper API...");
+
+    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST',
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
       },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: "Transcreva o áudio em português. Retorne apenas o texto transcrito, sem adicionar nenhum comentário ou formatação extra."
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: `data:audio/webm;base64,${audio}`
-                }
-              }
-            ]
-          }
-        ]
-      }),
+      body: formData,
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Lovable AI error:", response.status, errorText);
+      console.error("OpenAI API error:", response.status, errorText);
       
       if (response.status === 429) {
         return new Response(
@@ -98,11 +94,11 @@ serve(async (req) => {
         );
       }
       
-      throw new Error(`AI gateway error: ${response.status} ${errorText}`);
+      throw new Error(`OpenAI API error: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
-    const transcription = data.choices?.[0]?.message?.content || "";
+    const transcription = data.text || "";
     
     console.log("Transcription result:", transcription.substring(0, 100));
 
