@@ -106,7 +106,7 @@ export const AIProjectAssistant = ({ open, onOpenChange, onProjectExtracted }: A
         setRecordingTime(0);
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(1000); // Coleta chunks a cada 1 segundo
       setIsRecording(true);
 
       // Start timer to update recording time every second
