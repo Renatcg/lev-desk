@@ -1,10 +1,12 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Building2, LayoutDashboard, MapPin, Users, FileText, Briefcase, Settings, LogOut } from "lucide-react";
+import { Building2, LayoutDashboard, MapPin, Users, FileText, Briefcase, Settings, LogOut, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "next-themes";
+import { useSystemSettings } from "@/hooks/useSystemSettings";
 import levLogo from "@/assets/lev-logo.png";
 
 interface LayoutProps {
@@ -15,6 +17,8 @@ const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
+  const { settings } = useSystemSettings();
 
   const handleSignOut = async () => {
     await signOut();
@@ -41,7 +45,7 @@ const Layout = ({ children }: LayoutProps) => {
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-16 items-center gap-3 border-b px-6">
-            <img src={levLogo} alt="LEV" className="h-8 w-auto" />
+            <img src={settings?.logo_url || levLogo} alt="LEV" className="h-8 w-auto" />
           </div>
 
           {/* Navigation */}
@@ -79,6 +83,20 @@ const Layout = ({ children }: LayoutProps) => {
                 </p>
                 <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
               </div>
+              {settings?.allow_theme_toggle && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className="h-8 w-8"
+                >
+                  {theme === "dark" ? (
+                    <Sun className="h-4 w-4" />
+                  ) : (
+                    <Moon className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
             </div>
             <Button
               variant="outline"
