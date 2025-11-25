@@ -395,6 +395,7 @@ export type Database = {
           created_at: string | null
           favicon_url: string | null
           id: string
+          logo_dark_url: string | null
           logo_url: string | null
           primary_color_h: number | null
           primary_color_l: number | null
@@ -409,6 +410,7 @@ export type Database = {
           created_at?: string | null
           favicon_url?: string | null
           id?: string
+          logo_dark_url?: string | null
           logo_url?: string | null
           primary_color_h?: number | null
           primary_color_l?: number | null
@@ -423,6 +425,7 @@ export type Database = {
           created_at?: string | null
           favicon_url?: string | null
           id?: string
+          logo_dark_url?: string | null
           logo_url?: string | null
           primary_color_h?: number | null
           primary_color_l?: number | null
