@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { format } from "date-fns";
+import { format, eachDayOfInterval } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -120,21 +120,43 @@ export function MediaPieceForm({
         end_date: format(values.end_date, 'yyyy-MM-dd'),
       };
 
-      let error;
+      let mediaPieceId;
       if (editData?.id) {
         const result = await supabase
           .from("media_pieces")
           .update(payload)
           .eq("id", editData.id);
-        error = result.error;
+        if (result.error) throw result.error;
+        mediaPieceId = editData.id;
       } else {
         const result = await supabase
           .from("media_pieces")
-          .insert(payload);
-        error = result.error;
+          .insert(payload)
+          .select();
+        if (result.error) throw result.error;
+        mediaPieceId = result.data?.[0]?.id;
       }
 
-      if (error) throw error;
+      // Create insertions for each day between start and end date (only for new pieces)
+      if (!editData?.id && mediaPieceId) {
+        const dateRange = eachDayOfInterval({
+          start: values.start_date,
+          end: values.end_date
+        });
+
+        const insertions = dateRange.map(date => ({
+          media_piece_id: mediaPieceId,
+          insertion_date: format(date, 'yyyy-MM-dd'),
+          quantity: 1,
+          actual_cost: values.cost_per_insertion ? parseFloat(values.cost_per_insertion) : null
+        }));
+
+        const { error: insertionsError } = await supabase
+          .from("media_insertions")
+          .insert(insertions);
+
+        if (insertionsError) throw insertionsError;
+      }
 
       toast({
         title: editData ? "Peça atualizada!" : "Peça criada!",

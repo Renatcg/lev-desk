@@ -157,8 +157,8 @@ export function MediaPlanGanttChart({
                                   w-[26px] h-12 flex-shrink-0 border-r border-border flex items-center justify-center
                                   cursor-pointer transition-colors
                                   ${isActive ? 'bg-primary/5' : 'bg-muted/20'}
-                                  ${totalInsertions > 0 ? 'bg-primary/20 font-semibold' : ''}
-                                  hover:bg-primary/30
+                                  ${totalInsertions > 0 ? 'bg-primary/30 font-semibold border-2 border-primary/50' : ''}
+                                  hover:bg-primary/40
                                 `}
                                 onClick={() => onCellClick?.(piece.id, date)}
                               >
