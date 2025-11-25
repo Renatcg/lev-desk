@@ -94,7 +94,7 @@ export function MediaPlanGanttChart({
             {dateRange.map((date) => (
               <div
                 key={date.toISOString()}
-                className="w-8 h-20 flex-shrink-0 flex items-center justify-center border-r border-border"
+                className="w-[26px] h-20 flex-shrink-0 flex items-center justify-center border-r border-border"
               >
                 <span className="transform -rotate-90 whitespace-nowrap text-xs font-medium">
                   {format(date, "dd MMM", { locale: ptBR })}
@@ -154,7 +154,7 @@ export function MediaPlanGanttChart({
                             <TooltipTrigger asChild>
                               <div
                                 className={`
-                                  w-8 h-12 flex-shrink-0 border-r border-border flex items-center justify-center
+                                  w-[26px] h-12 flex-shrink-0 border-r border-border flex items-center justify-center
                                   cursor-pointer transition-colors
                                   ${isActive ? 'bg-primary/5' : 'bg-muted/20'}
                                   ${totalInsertions > 0 ? 'bg-primary/20 font-semibold' : ''}
