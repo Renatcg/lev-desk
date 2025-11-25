@@ -14,10 +14,14 @@ import Documents from "./pages/Documents";
 import Settings from "./pages/Settings";
 import Layout from "./components/Layout";
 import NotFound from "./pages/NotFound";
+import { useFavicon } from "./hooks/useFavicon";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  useFavicon();
+  
+  return (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <TooltipProvider>
@@ -122,6 +126,7 @@ const App = () => (
     </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
