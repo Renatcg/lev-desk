@@ -264,8 +264,9 @@ export default function Settings() {
             <div className="space-y-2">
               <Label htmlFor="logo-upload">Logo do Sistema</Label>
               {settings?.logo_url && (
-                <div className="mb-2">
-                  <img src={settings.logo_url} alt="Logo atual" className="h-12 w-auto" />
+                <div className="p-4 border rounded-lg bg-muted/50 mb-2">
+                  <p className="text-xs text-muted-foreground mb-2">Preview atual:</p>
+                  <img src={settings.logo_url} alt="Logo atual" className="h-16 w-auto" />
                 </div>
               )}
               <Input
@@ -282,6 +283,12 @@ export default function Settings() {
 
             <div className="space-y-2">
               <Label htmlFor="favicon-upload">Favicon</Label>
+              {settings?.favicon_url && (
+                <div className="p-4 border rounded-lg bg-muted/50 mb-2">
+                  <p className="text-xs text-muted-foreground mb-2">Preview atual:</p>
+                  <img src={settings.favicon_url} alt="Favicon atual" className="h-8 w-8" />
+                </div>
+              )}
               <Input
                 id="favicon-upload"
                 type="file"
