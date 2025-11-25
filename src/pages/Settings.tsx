@@ -86,7 +86,31 @@ export default function Settings() {
 
       toast({
         title: "Logo atualizada",
-        description: "A nova logo foi carregada com sucesso.",
+        description: "A logo para fundo claro foi atualizada com sucesso.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao fazer upload",
+        description: "Não foi possível atualizar a logo.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleLogoDarkUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const publicUrl = await uploadFile(file, "logo_dark");
+      await updateSettings({ logo_dark_url: publicUrl });
+
+      toast({
+        title: "Logo atualizada",
+        description: "A logo para fundo escuro foi atualizada com sucesso.",
       });
     } catch (error) {
       toast({
@@ -262,7 +286,8 @@ export default function Settings() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="logo-upload">Logo do Sistema</Label>
+              <Label htmlFor="logo-upload">Logo para Fundo Claro</Label>
+              <p className="text-xs text-muted-foreground">Usada no modo claro</p>
               {settings?.logo_url && (
                 <div className="p-4 border rounded-lg bg-muted/50 mb-2">
                   <p className="text-xs text-muted-foreground mb-2">Preview atual:</p>
@@ -276,9 +301,26 @@ export default function Settings() {
                 onChange={handleLogoUpload}
                 disabled={uploading}
               />
-              <p className="text-xs text-muted-foreground">
-                Recomendado: PNG ou SVG, tamanho máximo 2MB
-              </p>
+              {uploading && <p className="text-sm text-muted-foreground">Fazendo upload...</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="logo-dark-upload">Logo para Fundo Escuro</Label>
+              <p className="text-xs text-muted-foreground">Usada no modo escuro e na página de login</p>
+              {settings?.logo_dark_url && (
+                <div className="p-4 border rounded-lg bg-muted/50 mb-2">
+                  <p className="text-xs text-muted-foreground mb-2">Preview atual:</p>
+                  <img src={settings.logo_dark_url} alt="Logo escura atual" className="h-16 w-auto" />
+                </div>
+              )}
+              <Input
+                id="logo-dark-upload"
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml"
+                onChange={handleLogoDarkUpload}
+                disabled={uploading}
+              />
+              {uploading && <p className="text-sm text-muted-foreground">Fazendo upload...</p>}
             </div>
 
             <div className="space-y-2">

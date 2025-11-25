@@ -19,6 +19,10 @@ const Layout = ({ children }: LayoutProps) => {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
   const { settings } = useSystemSettings();
+  
+  const logoUrl = theme === "dark" 
+    ? (settings?.logo_dark_url || settings?.logo_url || levLogo)
+    : (settings?.logo_url || levLogo);
 
   const handleSignOut = async () => {
     await signOut();
@@ -45,7 +49,7 @@ const Layout = ({ children }: LayoutProps) => {
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-16 items-center gap-3 border-b px-6">
-            <img src={settings?.logo_url || levLogo} alt="LEV" className="h-8 w-auto" />
+            <img src={logoUrl} alt="LEV" className="h-8 w-auto" />
           </div>
 
           {/* Navigation */}

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface SystemSettings {
   id: string;
   logo_url: string | null;
+  logo_dark_url: string | null;
   favicon_url: string | null;
   primary_color_h: number;
   primary_color_s: number;
@@ -54,7 +55,7 @@ export function useSystemSettings() {
     );
   };
 
-  const uploadFile = async (file: File, type: "logo" | "favicon") => {
+  const uploadFile = async (file: File, type: "logo" | "logo_dark" | "favicon") => {
     const fileExt = file.name.split(".").pop();
     const fileName = `${type}-${Date.now()}.${fileExt}`;
     const filePath = `${fileName}`;
