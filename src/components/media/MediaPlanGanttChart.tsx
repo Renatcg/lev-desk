@@ -83,18 +83,18 @@ export function MediaPlanGanttChart({
 
   return (
     <Card className="w-full">
-      <ScrollArea className="w-full">
-        <div className="min-w-max">
+      <ScrollArea className="w-full h-[600px]">
+        <div className="min-w-max pb-4">
           {/* Header with dates */}
           <div className="flex border-b border-border bg-muted/50">
             <div className="sticky left-0 z-20 bg-muted/50 border-r border-border">
-              <div className="w-80 p-3 font-semibold text-sm">Peça de Mídia</div>
+              <div className="w-64 p-2 font-semibold text-sm">Peça de Mídia</div>
             </div>
             <div className="flex">
             {dateRange.map((date) => (
               <div
                 key={date.toISOString()}
-                className="w-10 h-28 flex-shrink-0 flex items-center justify-center border-r border-border"
+                className="w-8 h-20 flex-shrink-0 flex items-center justify-center border-r border-border"
               >
                 <span className="transform -rotate-90 whitespace-nowrap text-xs font-medium">
                   {format(date, "dd MMM", { locale: ptBR })}
@@ -110,7 +110,7 @@ export function MediaPlanGanttChart({
               {/* Category Header */}
               <div className="flex bg-accent/10 border-b border-border">
                 <div className="sticky left-0 z-10 bg-accent/10 border-r border-border">
-                  <div className="w-80 p-2 font-semibold text-sm">
+                  <div className="w-64 p-2 font-semibold text-sm">
                     {category}
                   </div>
                 </div>
@@ -121,7 +121,7 @@ export function MediaPlanGanttChart({
               {categoryPieces.map((piece) => (
                 <div key={piece.id} className="flex border-b border-border hover:bg-muted/30">
                   <div className="sticky left-0 z-10 bg-background border-r border-border">
-                    <div className="w-80 p-3">
+                    <div className="w-64 p-2">
                       <div className="flex items-center gap-2 mb-1">
                         <Badge 
                           variant={piece.media_type === 'online' ? 'default' : 'secondary'}
@@ -129,7 +129,7 @@ export function MediaPlanGanttChart({
                         >
                           {piece.media_type}
                         </Badge>
-                        <span className="text-sm font-medium">{piece.name}</span>
+                        <span className="text-xs font-medium">{piece.name}</span>
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {piece.channel}
@@ -154,7 +154,7 @@ export function MediaPlanGanttChart({
                             <TooltipTrigger asChild>
                               <div
                                 className={`
-                                  w-10 h-16 flex-shrink-0 border-r border-border flex items-center justify-center
+                                  w-8 h-12 flex-shrink-0 border-r border-border flex items-center justify-center
                                   cursor-pointer transition-colors
                                   ${isActive ? 'bg-primary/5' : 'bg-muted/20'}
                                   ${totalInsertions > 0 ? 'bg-primary/20 font-semibold' : ''}
