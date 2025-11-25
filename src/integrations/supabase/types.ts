@@ -389,6 +389,51 @@ export type Database = {
           },
         ]
       }
+      system_settings: {
+        Row: {
+          allow_theme_toggle: boolean | null
+          created_at: string | null
+          favicon_url: string | null
+          id: string
+          logo_url: string | null
+          primary_color_h: number | null
+          primary_color_l: number | null
+          primary_color_s: number | null
+          secondary_color_h: number | null
+          secondary_color_l: number | null
+          secondary_color_s: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          allow_theme_toggle?: boolean | null
+          created_at?: string | null
+          favicon_url?: string | null
+          id?: string
+          logo_url?: string | null
+          primary_color_h?: number | null
+          primary_color_l?: number | null
+          primary_color_s?: number | null
+          secondary_color_h?: number | null
+          secondary_color_l?: number | null
+          secondary_color_s?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          allow_theme_toggle?: boolean | null
+          created_at?: string | null
+          favicon_url?: string | null
+          id?: string
+          logo_url?: string | null
+          primary_color_h?: number | null
+          primary_color_l?: number | null
+          primary_color_s?: number | null
+          secondary_color_h?: number | null
+          secondary_color_l?: number | null
+          secondary_color_s?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
