@@ -4,7 +4,8 @@ import { ptBR } from "date-fns/locale";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { EditablePiecePopover } from "./EditablePiecePopover";
+import { cn } from "@/lib/utils";
 
 interface MediaPiece {
   id: string;
@@ -34,7 +35,10 @@ interface MediaPlanGanttChartProps {
   insertions: MediaInsertion[];
   startDate: Date;
   endDate: Date;
+  categories: any[];
   onCellClick?: (pieceId: string, date: Date) => void;
+  onUpdate?: () => void;
+  editMode?: boolean;
 }
 
 export function MediaPlanGanttChart({ 
@@ -42,7 +46,10 @@ export function MediaPlanGanttChart({
   insertions, 
   startDate, 
   endDate,
-  onCellClick 
+  categories = [],
+  onCellClick,
+  onUpdate,
+  editMode = false
 }: MediaPlanGanttChartProps) {
   const [groupedPieces, setGroupedPieces] = useState<Record<string, MediaPiece[]>>({});
   const [dateRange, setDateRange] = useState<Date[]>([]);
@@ -119,93 +126,54 @@ export function MediaPlanGanttChart({
 
               {/* Pieces in category */}
               {categoryPieces.map((piece) => (
-                <HoverCard key={piece.id} openDelay={200}>
-                  <div className="flex border-b border-border hover:bg-muted/30">
-                    <HoverCardTrigger asChild>
-                      <div className="sticky left-0 z-10 bg-background border-r border-border cursor-pointer">
-                        <div className="w-64 py-[5px] px-2 flex items-center">
-                          <span className="text-sm font-medium truncate">{piece.name}</span>
+                <div key={piece.id} className="flex border-b border-border hover:bg-muted/30">
+                  {editMode ? (
+                    <EditablePiecePopover
+                      piece={piece}
+                      categories={categories}
+                      onUpdate={() => onUpdate?.()}
+                      trigger={
+                        <div className="sticky left-0 z-10 bg-background border-r border-border cursor-pointer">
+                          <div className="w-64 py-[5px] px-2 flex items-center">
+                            <span className="text-sm font-medium truncate">{piece.name}</span>
+                          </div>
                         </div>
+                      }
+                    />
+                  ) : (
+                    <div className="sticky left-0 z-10 bg-background border-r border-border">
+                      <div className="w-64 py-[5px] px-2 flex items-center">
+                        <span className="text-sm font-medium truncate">{piece.name}</span>
                       </div>
-                    </HoverCardTrigger>
-                    <HoverCardContent side="right" align="start" className="w-80">
-                      <div className="space-y-3">
-                        <div>
-                          <h4 className="font-semibold text-sm mb-2">{piece.name}</h4>
-                          <div className="space-y-1.5 text-xs">
-                            <div className="flex items-center gap-2">
-                              <span className="text-muted-foreground">📺 Canal:</span>
-                              <span className="font-medium">{piece.channel}</span>
-                            </div>
-                            {piece.schedule_time && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-muted-foreground">🕐 Horário:</span>
-                                <span className="font-medium">{piece.schedule_time}</span>
-                              </div>
-                            )}
-                            <div className="flex items-center gap-2">
-                              <span className="text-muted-foreground">📡 Tipo:</span>
-                              <span className="font-medium capitalize">{piece.media_type}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-muted-foreground">🎬 Peça:</span>
-                              <span className="font-medium">{piece.piece_type}</span>
-                            </div>
-                            {piece.cost_per_insertion && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-muted-foreground">💰 Custo/Inserção:</span>
-                                <span className="font-medium">R$ {piece.cost_per_insertion.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                              </div>
-                            )}
-                            {piece.global_cost && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-muted-foreground">💵 Custo Global:</span>
-                                <span className="font-medium">R$ {piece.global_cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                              </div>
-                            )}
-                            <div className="flex items-center gap-2 pt-1 border-t border-border">
-                              <span className="text-muted-foreground">📅 Período:</span>
-                              <span className="font-medium">
-                                {format(new Date(piece.start_date), "dd/MM/yyyy", { locale: ptBR })} - {format(new Date(piece.end_date), "dd/MM/yyyy", { locale: ptBR })}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="pt-2 border-t border-border">
-                          <div className="text-xs font-medium">
-                            Total de inserções: {insertions.filter(ins => ins.media_piece_id === piece.id).reduce((sum, ins) => sum + ins.quantity, 0)}
-                          </div>
-                        </div>
-                      </div>
-                    </HoverCardContent>
-
-                    {/* Date cells */}
-                    <div className="flex">
-                      {dateRange.map((date) => {
-                        const isActive = isPieceActiveOnDate(piece, date);
-                        const totalInsertions = getTotalInsertionsForDate(piece.id, date);
-
-                        return (
-                          <div
-                            key={date.toISOString()}
-                            className={`
-                              w-[26px] h-[26px] flex-shrink-0 border-r border-border flex items-center justify-center
-                              cursor-pointer transition-colors
-                              ${isActive ? 'bg-primary/5' : 'bg-muted/20'}
-                              ${totalInsertions > 0 ? 'bg-primary/30 font-semibold border-2 border-primary/50' : ''}
-                              hover:bg-primary/40
-                            `}
-                            onClick={() => onCellClick?.(piece.id, date)}
-                          >
-                            {totalInsertions > 0 && (
-                              <span className="text-xs">{totalInsertions}</span>
-                            )}
-                          </div>
-                        );
-                      })}
                     </div>
+                  )}
+
+                  {/* Date cells */}
+                  <div className="flex">
+                    {dateRange.map((date) => {
+                      const isActive = isPieceActiveOnDate(piece, date);
+                      const totalInsertions = getTotalInsertionsForDate(piece.id, date);
+
+                      return (
+                        <div
+                          key={date.toISOString()}
+                          className={cn(
+                            "w-[26px] h-[26px] flex-shrink-0 border-r border-border flex items-center justify-center",
+                            "cursor-pointer transition-colors",
+                            isActive ? 'bg-primary/5' : 'bg-muted/20',
+                            totalInsertions > 0 && 'bg-primary/30 font-semibold border-2 border-primary/50',
+                            'hover:bg-primary/40'
+                          )}
+                          onClick={() => onCellClick?.(piece.id, date)}
+                        >
+                          {totalInsertions > 0 && (
+                            <span className="text-xs">{totalInsertions}</span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
-                </HoverCard>
+                </div>
               ))}
             </div>
           ))}
