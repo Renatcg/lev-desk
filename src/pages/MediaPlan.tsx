@@ -2,16 +2,18 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { format, startOfMonth, endOfMonth, addMonths, subMonths, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ArrowLeft, Plus, Download, ChevronLeft, ChevronRight, Calendar as CalendarIcon, TrendingUp, TrendingDown, AlertCircle } from "lucide-react";
+import { ArrowLeft, Plus, Download, ChevronLeft, ChevronRight, Calendar as CalendarIcon, TrendingUp, TrendingDown, AlertCircle, Grid3x3, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MediaPlanGanttChart } from "@/components/media/MediaPlanGanttChart";
+import { MediaPlanEditableGrid } from "@/components/media/MediaPlanEditableGrid";
 import { MediaPieceForm } from "@/components/media/MediaPieceForm";
 import { InsertionDialog } from "@/components/media/InsertionDialog";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -35,6 +37,7 @@ export default function MediaPlan() {
   const [customEndDate, setCustomEndDate] = useState<Date | undefined>();
   const [budgetData, setBudgetData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'gantt' | 'grid'>('gantt');
 
   // Calculate effective date range for Gantt
   const effectiveStartDate = customStartDate || startOfMonth(currentMonth);
@@ -259,6 +262,18 @@ export default function MediaPlan() {
         </div>
 
         <div className="flex items-center gap-2">
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)} className="mr-2">
+            <TabsList>
+              <TabsTrigger value="gantt" className="gap-2">
+                <Eye className="h-4 w-4" />
+                Visualização
+              </TabsTrigger>
+              <TabsTrigger value="grid" className="gap-2">
+                <Grid3x3 className="h-4 w-4" />
+                Edição
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
           <Button onClick={handleExportExcel} variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Exportar Excel
@@ -430,14 +445,26 @@ export default function MediaPlan() {
         </div>
       )}
 
-      {/* Gantt Chart */}
-      <MediaPlanGanttChart
-        pieces={pieces}
-        insertions={insertions}
-        startDate={effectiveStartDate}
-        endDate={effectiveEndDate}
-        onCellClick={handleCellClick}
-      />
+      {/* Content based on view mode */}
+      {viewMode === 'gantt' ? (
+        <MediaPlanGanttChart
+          pieces={pieces}
+          insertions={insertions}
+          startDate={effectiveStartDate}
+          endDate={effectiveEndDate}
+          categories={categories}
+          onCellClick={handleCellClick}
+          onUpdate={loadData}
+          editMode={false}
+        />
+      ) : (
+        <MediaPlanEditableGrid
+          pieces={pieces}
+          categories={categories}
+          projectId={id!}
+          onUpdate={loadData}
+        />
+      )}
 
       {/* Dialogs */}
       <MediaPieceForm
