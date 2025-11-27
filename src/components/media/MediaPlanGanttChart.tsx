@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { Edit, Copy, Trash, Plus } from "lucide-react";
+import { Edit, Copy, Trash, Plus, ExternalLink } from "lucide-react";
 import { EditPieceDialog } from "./EditPieceDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -118,6 +119,33 @@ export function MediaPlanGanttChart({
   const isPieceActiveOnDate = (piece: MediaPiece, date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     return dateStr >= piece.start_date && dateStr <= piece.end_date;
+  };
+
+  const calculatePieceCost = (piece: MediaPiece): number => {
+    if (piece.global_cost && piece.global_cost > 0) {
+      return piece.global_cost;
+    }
+    
+    const pieceInsertions = localInsertions.filter(ins => ins.media_piece_id === piece.id);
+    const totalQuantity = pieceInsertions.reduce((sum, ins) => sum + ins.quantity, 0);
+    return (piece.cost_per_insertion || 0) * totalQuantity;
+  };
+
+  const calculateCategoryCost = (categoryPieces: MediaPiece[]): number => {
+    return categoryPieces.reduce((sum, piece) => sum + calculatePieceCost(piece), 0);
+  };
+
+  const formatCurrency = (value: number): string => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  };
+
+  const handleOpenInNewWindow = () => {
+    if (projectId) {
+      window.open(`/projects/${projectId}/media/fullscreen`, '_blank', 'width=1400,height=800');
+    }
   };
 
   const handleStartEdit = (piece: MediaPiece) => {
@@ -587,12 +615,31 @@ export function MediaPlanGanttChart({
 
   return (
     <Card className="w-full">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">
+            Plano de Mídia - {format(startDate, "dd/MM/yyyy", { locale: ptBR })} até {format(endDate, "dd/MM/yyyy", { locale: ptBR })}
+          </CardTitle>
+          {projectId && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleOpenInNewWindow}
+              className="gap-2"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Abrir em nova janela
+            </Button>
+          )}
+        </div>
+      </CardHeader>
       <ScrollArea className="w-full h-[600px]">
         <div className="min-w-max pb-4">
           {/* Header with dates */}
           <div className="flex border-b border-border bg-muted/50">
-            <div className="sticky left-0 z-20 bg-muted/50 border-r border-border">
-              <div className="w-64 p-2 font-semibold text-sm">Peça de Mídia</div>
+            <div className="sticky left-0 z-20 bg-muted/50 border-r border-border flex">
+              <div className="w-64 p-2 font-semibold text-sm border-r border-border">Peça de Mídia</div>
+              <div className="w-32 p-2 font-semibold text-sm">Custo</div>
             </div>
             <div className="flex">
             {dateRange.map((date) => (
@@ -613,9 +660,12 @@ export function MediaPlanGanttChart({
             <div key={category}>
               {/* Category Header */}
               <div className="flex bg-accent/10 border-b border-border">
-                <div className="sticky left-0 z-10 bg-accent/10 border-r border-border">
-                  <div className="w-64 p-2 font-semibold text-sm">
+                <div className="sticky left-0 z-10 bg-accent/10 border-r border-border flex">
+                  <div className="w-64 p-2 font-semibold text-sm border-r border-border">
                     {category}
+                  </div>
+                  <div className="w-32 p-2 font-semibold text-sm text-primary">
+                    {formatCurrency(calculateCategoryCost(categoryPieces))}
                   </div>
                 </div>
                 <div className="flex-1" />
@@ -627,14 +677,16 @@ export function MediaPlanGanttChart({
                   <ContextMenu>
                     <ContextMenuTrigger asChild>
                       <div 
-                        className="sticky left-0 z-10 bg-background border-r border-border cursor-pointer hover:bg-muted/50"
-                        onClick={() => {
-                          if (editingPieceId !== piece.id) {
-                            handleStartEdit(piece);
-                          }
-                        }}
+                        className="sticky left-0 z-10 bg-background border-r border-border flex"
                       >
-                        <div className="w-64 py-[5px] px-2 flex items-center">
+                        <div 
+                          className="w-64 py-[5px] px-2 flex items-center cursor-pointer hover:bg-muted/50 border-r border-border"
+                          onClick={() => {
+                            if (editingPieceId !== piece.id) {
+                              handleStartEdit(piece);
+                            }
+                          }}
+                        >
                           {editingPieceId === piece.id ? (
                             <Input
                               ref={inputRef}
@@ -648,6 +700,9 @@ export function MediaPlanGanttChart({
                           ) : (
                             <span className="text-sm font-medium truncate">{piece.name}</span>
                           )}
+                        </div>
+                        <div className="w-32 py-[5px] px-2 text-sm text-muted-foreground">
+                          {formatCurrency(calculatePieceCost(piece))}
                         </div>
                       </div>
                     </ContextMenuTrigger>
@@ -722,8 +777,8 @@ export function MediaPlanGanttChart({
           {/* Single empty row at the end for adding new pieces */}
           {pieces.length > 0 && (
             <div className="flex border-b border-border hover:bg-muted/20">
-              <div className="sticky left-0 z-10 bg-background border-r border-border">
-                <div className="w-64 py-[5px] px-2 flex items-center">
+              <div className="sticky left-0 z-10 bg-background border-r border-border flex">
+                <div className="w-64 py-[5px] px-2 flex items-center border-r border-border">
                   <Input
                     value={emptyRows['__global__'] || ''}
                     onChange={(e) => setEmptyRows(prev => ({ ...prev, '__global__': e.target.value }))}
@@ -732,6 +787,7 @@ export function MediaPlanGanttChart({
                     className="h-6 text-sm px-1 py-0 text-muted-foreground border-none focus-visible:ring-0"
                   />
                 </div>
+                <div className="w-32 py-[5px] px-2"></div>
               </div>
               <div className="flex">
                 {dateRange.map((date) => (

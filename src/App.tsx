@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import LandBank from "./pages/LandBank";
 import Projects from "./pages/Projects";
 import MediaPlan from "./pages/MediaPlan";
+import MediaPlanFullscreen from "./pages/MediaPlanFullscreen";
 import Documents from "./pages/Documents";
 import Settings from "./pages/Settings";
 import Layout from "./components/Layout";
@@ -69,6 +70,14 @@ const App = () => {
                   <Layout>
                     <MediaPlan />
                   </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/projects/:id/media/fullscreen"
+              element={
+                <ProtectedRoute>
+                  <MediaPlanFullscreen />
                 </ProtectedRoute>
               }
             />
