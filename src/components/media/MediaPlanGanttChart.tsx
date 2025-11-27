@@ -123,23 +123,8 @@ export function MediaPlanGanttChart({
                   <div className="flex border-b border-border hover:bg-muted/30">
                     <HoverCardTrigger asChild>
                       <div className="sticky left-0 z-10 bg-background border-r border-border cursor-pointer">
-                        <div className="w-64 p-2">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge 
-                              variant={piece.media_type === 'online' ? 'default' : 'secondary'}
-                              className="text-xs"
-                            >
-                              {piece.media_type}
-                            </Badge>
-                            <span className="text-xs font-medium">{piece.name}</span>
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {piece.channel}
-                            {piece.schedule_time && ` • ${piece.schedule_time}`}
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {piece.piece_type}
-                          </div>
+                        <div className="w-64 p-2 flex items-center">
+                          <span className="text-sm font-medium truncate">{piece.name}</span>
                         </div>
                       </div>
                     </HoverCardTrigger>
