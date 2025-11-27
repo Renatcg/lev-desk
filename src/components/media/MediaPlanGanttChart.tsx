@@ -628,7 +628,11 @@ export function MediaPlanGanttChart({
                     <ContextMenuTrigger asChild>
                       <div 
                         className="sticky left-0 z-10 bg-background border-r border-border cursor-pointer hover:bg-muted/50"
-                        onClick={() => handleStartEdit(piece)}
+                        onClick={() => {
+                          if (editingPieceId !== piece.id) {
+                            handleStartEdit(piece);
+                          }
+                        }}
                       >
                         <div className="w-64 py-[5px] px-2 flex items-center">
                           {editingPieceId === piece.id ? (
