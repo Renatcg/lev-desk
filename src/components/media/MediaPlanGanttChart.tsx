@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -678,7 +678,10 @@ export function MediaPlanGanttChart({
           )}
         </div>
       </CardHeader>
-      <ScrollArea className="w-full h-[600px]">
+      <ScrollArea className={cn(
+        "w-full",
+        isPopupMode ? "h-[calc(100vh-140px)]" : "h-[600px]"
+      )}>
         <div className="min-w-max pb-4">
           {/* Header with dates */}
           <div className="flex border-b border-border bg-muted/50">
@@ -851,6 +854,7 @@ export function MediaPlanGanttChart({
             </div>
           )}
         </div>
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
 
       <EditPieceDialog
