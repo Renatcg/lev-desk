@@ -126,14 +126,15 @@ export function MediaPlanGanttChart({
   };
 
   const handleSaveName = async () => {
-    if (!editingPieceId || !editingValue.trim()) {
+    if (!editingPieceId) {
       setEditingPieceId(null);
       return;
     }
 
     // Buscar peça original para comparar
     const originalPiece = localPieces.find(p => p.id === editingPieceId);
-    const newName = editingValue.trim();
+    // Se vazio, usar "Nova peça" como padrão
+    const newName = editingValue.trim() || 'Nova peça';
     
     // Só salvar se o nome realmente mudou
     if (originalPiece && originalPiece.name === newName) {
@@ -352,7 +353,7 @@ export function MediaPlanGanttChart({
         
         // Entrar automaticamente em modo de edição do nome
         setEditingPieceId(newPiece.id);
-        setEditingValue(newPiece.name);
+        setEditingValue('');
       }
     } catch (error) {
       console.error('Error creating piece:', error);
@@ -637,6 +638,7 @@ export function MediaPlanGanttChart({
                               onChange={(e) => setEditingValue(e.target.value)}
                               onKeyDown={handleKeyDown}
                               onBlur={handleSaveName}
+                              placeholder="Nova peça"
                               className="h-6 text-sm font-medium px-1 py-0"
                             />
                           ) : (
