@@ -18,7 +18,7 @@ const Layout = ({ children }: LayoutProps) => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
-  const { settings } = useSystemSettings();
+  const { settings, loading } = useSystemSettings();
   
   const logoUrl = theme === "dark" 
     ? (settings?.logo_dark_url || settings?.logo_url || levLogo)

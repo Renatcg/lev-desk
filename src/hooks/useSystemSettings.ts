@@ -15,8 +15,38 @@ interface SystemSettings {
   allow_theme_toggle: boolean;
 }
 
+const LOGO_CACHE_KEY = "system_logo_url";
+const LOGO_DARK_CACHE_KEY = "system_logo_dark_url";
+const FAVICON_CACHE_KEY = "system_favicon_url";
+
 export function useSystemSettings() {
-  const [settings, setSettings] = useState<SystemSettings | null>(null);
+  const [settings, setSettings] = useState<SystemSettings | null>(() => {
+    // Load cached logo URLs on mount
+    try {
+      const cachedLogoUrl = localStorage.getItem(LOGO_CACHE_KEY);
+      const cachedLogoDarkUrl = localStorage.getItem(LOGO_DARK_CACHE_KEY);
+      const cachedFaviconUrl = localStorage.getItem(FAVICON_CACHE_KEY);
+      
+      if (cachedLogoUrl || cachedLogoDarkUrl || cachedFaviconUrl) {
+        return {
+          id: '',
+          logo_url: cachedLogoUrl,
+          logo_dark_url: cachedLogoDarkUrl,
+          favicon_url: cachedFaviconUrl,
+          primary_color_h: 222,
+          primary_color_s: 47,
+          primary_color_l: 11,
+          secondary_color_h: 210,
+          secondary_color_s: 40,
+          secondary_color_l: 96,
+          allow_theme_toggle: true,
+        } as SystemSettings;
+      }
+    } catch (error) {
+      console.error("Error loading cached settings:", error);
+    }
+    return null;
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,6 +65,21 @@ export function useSystemSettings() {
       if (data) {
         setSettings(data);
         applyColors(data);
+        
+        // Cache logo URLs in localStorage
+        try {
+          if (data.logo_url) {
+            localStorage.setItem(LOGO_CACHE_KEY, data.logo_url);
+          }
+          if (data.logo_dark_url) {
+            localStorage.setItem(LOGO_DARK_CACHE_KEY, data.logo_dark_url);
+          }
+          if (data.favicon_url) {
+            localStorage.setItem(FAVICON_CACHE_KEY, data.favicon_url);
+          }
+        } catch (error) {
+          console.error("Error caching settings:", error);
+        }
       }
     } catch (error) {
       console.error("Error loading system settings:", error);
