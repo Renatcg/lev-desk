@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { Edit, Copy, Trash } from "lucide-react";
+import { Edit, Copy, Trash, Plus } from "lucide-react";
 import { EditPieceDialog } from "./EditPieceDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -196,13 +196,26 @@ export function MediaPlanGanttChart({
   const handleCreateFromEmptyRow = async (key: string, name: string) => {
     if (!name.trim() || !projectId) return;
 
-    // Get the last category from existing pieces
-    const lastPiece = localPieces[localPieces.length - 1];
-    if (!lastPiece) {
+    // Pegar a última categoria VISÍVEL no grid
+    const categoryKeys = Object.keys(groupedPieces);
+    if (categoryKeys.length === 0) {
       toast({
         variant: "destructive",
         title: "Erro",
-        description: "Não há peças existentes para determinar a categoria.",
+        description: "Não há categorias disponíveis.",
+      });
+      return;
+    }
+    
+    const lastVisibleCategoryName = categoryKeys[categoryKeys.length - 1];
+    const lastCategoryPieces = groupedPieces[lastVisibleCategoryName];
+    const lastVisiblePiece = lastCategoryPieces[lastCategoryPieces.length - 1];
+    
+    if (!lastVisiblePiece) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Não foi possível determinar a categoria.",
       });
       return;
     }
@@ -212,7 +225,7 @@ export function MediaPlanGanttChart({
         .from('media_pieces')
         .insert([{
           project_id: projectId,
-          category_id: lastPiece.category_id,
+          category_id: lastVisiblePiece.category_id,
           name: name.trim(),
           channel: '',
           media_type: 'online',
@@ -236,7 +249,7 @@ export function MediaPlanGanttChart({
       if (data && onPieceChange) {
         const newPiece: MediaPiece = { 
           ...data as any, 
-          category_name: lastPiece.category_name 
+          category_name: lastVisibleCategoryName 
         };
         const updatedPieces = [...localPieces, newPiece];
         setLocalPieces(updatedPieces);
@@ -294,6 +307,58 @@ export function MediaPlanGanttChart({
       toast({
         title: "Erro ao duplicar",
         description: "Não foi possível duplicar a peça.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAddBelow = async (piece: MediaPiece) => {
+    if (!projectId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('media_pieces')
+        .insert([{
+          project_id: projectId,
+          category_id: piece.category_id,
+          name: 'Nova peça',
+          channel: '',
+          media_type: 'online',
+          piece_type: '',
+          start_date: format(startDate, 'yyyy-MM-dd'),
+          end_date: format(endDate, 'yyyy-MM-dd'),
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data && onPieceChange) {
+        const newPiece: MediaPiece = { 
+          ...data as any, 
+          category_name: piece.category_name 
+        };
+        
+        // Inserir logo após a peça selecionada no array
+        const pieceIndex = localPieces.findIndex(p => p.id === piece.id);
+        const updatedPieces = [
+          ...localPieces.slice(0, pieceIndex + 1),
+          newPiece,
+          ...localPieces.slice(pieceIndex + 1)
+        ];
+        
+        setLocalPieces(updatedPieces);
+        onPieceChange(updatedPieces);
+        
+        // Entrar automaticamente em modo de edição do nome
+        setEditingPieceId(newPiece.id);
+        setEditingValue(newPiece.name);
+      }
+    } catch (error) {
+      console.error('Error creating piece:', error);
+      toast({
+        title: "Erro ao criar peça",
+        description: "Não foi possível criar a peça de mídia.",
         variant: "destructive",
       });
     }
@@ -581,6 +646,11 @@ export function MediaPlanGanttChart({
                       </div>
                     </ContextMenuTrigger>
                     <ContextMenuContent>
+                      <ContextMenuItem onClick={() => handleAddBelow(piece)}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Adicionar linha abaixo
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
                       <ContextMenuItem onClick={() => handleOpenDetailsDialog(piece)}>
                         <Edit className="mr-2 h-4 w-4" />
                         Editar detalhes
