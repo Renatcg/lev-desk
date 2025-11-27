@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { Edit, Copy, Trash, Plus, ExternalLink } from "lucide-react";
+import { Edit, Copy, Trash, Plus, ExternalLink, Calendar } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { EditPieceDialog } from "./EditPieceDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -48,6 +50,8 @@ interface MediaPlanGanttChartProps {
   onInsertionChange?: (insertions: MediaInsertion[]) => void;
   onPieceChange?: (pieces: MediaPiece[]) => void;
   projectId?: string;
+  isPopupMode?: boolean;
+  onDateRangeChange?: (startDate: Date, endDate: Date) => void;
 }
 
 export function MediaPlanGanttChart({ 
@@ -58,7 +62,9 @@ export function MediaPlanGanttChart({
   categories = [],
   onInsertionChange,
   onPieceChange,
-  projectId
+  projectId,
+  isPopupMode = false,
+  onDateRangeChange
 }: MediaPlanGanttChartProps) {
   const { toast } = useToast();
   const [groupedPieces, setGroupedPieces] = useState<Record<string, MediaPiece[]>>({});
@@ -620,16 +626,55 @@ export function MediaPlanGanttChart({
           <CardTitle className="text-lg">
             Plano de Mídia - {format(startDate, "dd/MM/yyyy", { locale: ptBR })} até {format(endDate, "dd/MM/yyyy", { locale: ptBR })}
           </CardTitle>
-          {projectId && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleOpenInNewWindow}
-              className="gap-2"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Abrir em nova janela
-            </Button>
+          {isPopupMode ? (
+            <div className="flex gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Calendar className="h-4 w-4" />
+                    De: {format(startDate, "dd/MM/yyyy")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={startDate}
+                    onSelect={(date) => date && onDateRangeChange?.(date, endDate)}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Até: {format(endDate, "dd/MM/yyyy")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={endDate}
+                    onSelect={(date) => date && onDateRangeChange?.(startDate, date)}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          ) : (
+            projectId && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleOpenInNewWindow}
+                className="gap-2"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Abrir em nova janela
+              </Button>
+            )
           )}
         </div>
       </CardHeader>

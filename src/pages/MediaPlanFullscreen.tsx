@@ -41,14 +41,12 @@ const MediaPlanFullscreen = () => {
   const [insertions, setInsertions] = useState<MediaInsertion[]>([]);
   const [categories, setCategories] = useState<MediaCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentMonth] = useState(new Date());
-
-  const effectiveStartDate = startOfMonth(currentMonth);
-  const effectiveEndDate = endOfMonth(currentMonth);
+  const [startDate, setStartDate] = useState(startOfMonth(new Date()));
+  const [endDate, setEndDate] = useState(endOfMonth(new Date()));
 
   useEffect(() => {
     loadData();
-  }, [id, currentMonth]);
+  }, [id, startDate, endDate]);
 
   const loadData = async () => {
     if (!id) return;
@@ -72,8 +70,8 @@ const MediaPlanFullscreen = () => {
           category:media_categories(name)
         `)
         .eq("project_id", id)
-        .gte("end_date", format(effectiveStartDate, 'yyyy-MM-dd'))
-        .lte("start_date", format(effectiveEndDate, 'yyyy-MM-dd'))
+        .gte("end_date", format(startDate, 'yyyy-MM-dd'))
+        .lte("start_date", format(endDate, 'yyyy-MM-dd'))
         .order("start_date");
 
       if (piecesError) throw piecesError;
@@ -90,8 +88,8 @@ const MediaPlanFullscreen = () => {
           .from("media_insertions")
           .select("*")
           .in("media_piece_id", pieceIds)
-          .gte("insertion_date", format(effectiveStartDate, 'yyyy-MM-dd'))
-          .lte("insertion_date", format(effectiveEndDate, 'yyyy-MM-dd'));
+          .gte("insertion_date", format(startDate, 'yyyy-MM-dd'))
+          .lte("insertion_date", format(endDate, 'yyyy-MM-dd'));
 
         if (insertionsError) throw insertionsError;
         setInsertions(insertionsData || []);
@@ -112,6 +110,11 @@ const MediaPlanFullscreen = () => {
     setPieces(updatedPieces);
   };
 
+  const handleDateRangeChange = (newStartDate: Date, newEndDate: Date) => {
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
+  };
+
   if (loading) {
     return (
       <div className="h-screen w-screen flex items-center justify-center">
@@ -125,12 +128,14 @@ const MediaPlanFullscreen = () => {
       <MediaPlanGanttChart
         pieces={pieces}
         insertions={insertions}
-        startDate={effectiveStartDate}
-        endDate={effectiveEndDate}
+        startDate={startDate}
+        endDate={endDate}
         categories={categories}
         onInsertionChange={handleInsertionChange}
         onPieceChange={handlePieceChange}
         projectId={id}
+        isPopupMode={true}
+        onDateRangeChange={handleDateRangeChange}
       />
     </div>
   );
