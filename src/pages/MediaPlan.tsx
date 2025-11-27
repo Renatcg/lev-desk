@@ -133,19 +133,12 @@ export default function MediaPlan() {
     }
   };
 
-  const handleCellClick = (pieceId: string, date: Date) => {
-    const piece = pieces.find((p) => p.id === pieceId);
-    if (!piece) return;
+  const handleInsertionChange = (updatedInsertions: any[]) => {
+    setInsertions(updatedInsertions);
+  };
 
-    const dateStr = format(date, 'yyyy-MM-dd');
-    const pieceInsertions = insertions.filter(
-      (ins) => ins.media_piece_id === pieceId && ins.insertion_date === dateStr
-    );
-    const totalQuantity = pieceInsertions.reduce((sum, ins) => sum + ins.quantity, 0);
-
-    setSelectedPiece(piece);
-    setSelectedDate(date);
-    setShowInsertionDialog(true);
+  const handlePieceChange = (updatedPieces: any[]) => {
+    setPieces(updatedPieces);
   };
 
   const handleExportExcel = () => {
@@ -438,8 +431,8 @@ export default function MediaPlan() {
         startDate={effectiveStartDate}
         endDate={effectiveEndDate}
         categories={categories}
-        onCellClick={handleCellClick}
-        onUpdate={loadData}
+        onInsertionChange={handleInsertionChange}
+        onPieceChange={handlePieceChange}
         projectId={id}
       />
 
