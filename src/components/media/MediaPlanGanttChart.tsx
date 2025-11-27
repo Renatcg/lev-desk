@@ -684,12 +684,12 @@ export function MediaPlanGanttChart({
       )}>
         <div className="min-w-max pb-4">
           {/* Header with dates */}
-          <div className="flex border-b border-border bg-muted/50">
-            <div className="sticky left-0 z-20 bg-muted/50 border-r border-border flex">
+          <div className="flex border-b border-border bg-muted">
+            <div className="sticky left-0 z-20 bg-muted border-r border-border flex">
               <div className="w-64 p-2 font-semibold text-sm border-r border-border">Peça de Mídia</div>
               <div className="w-32 p-2 font-semibold text-sm">Custo</div>
             </div>
-            <div className="flex">
+            <div className="flex z-0">
             {dateRange.map((date) => (
               <div
                 key={date.toISOString()}
@@ -708,7 +708,7 @@ export function MediaPlanGanttChart({
             <div key={category}>
               {/* Category Header */}
               <div className="flex bg-accent/10 border-b border-border">
-                <div className="sticky left-0 z-10 bg-accent/10 border-r border-border flex">
+                <div className="sticky left-0 z-20 bg-accent/10 border-r border-border flex">
                   <div className="w-64 p-2 font-semibold text-sm border-r border-border">
                     {category}
                   </div>
@@ -725,7 +725,7 @@ export function MediaPlanGanttChart({
                   <ContextMenu>
                     <ContextMenuTrigger asChild>
                       <div 
-                        className="sticky left-0 z-10 bg-background border-r border-border flex"
+                        className="sticky left-0 z-20 bg-background border-r border-border flex"
                       >
                         <div 
                           className="w-64 py-[5px] px-2 flex items-center cursor-pointer hover:bg-muted/50 border-r border-border"
@@ -825,7 +825,7 @@ export function MediaPlanGanttChart({
           {/* Single empty row at the end for adding new pieces */}
           {pieces.length > 0 && (
             <div className="flex border-b border-border hover:bg-muted/20">
-              <div className="sticky left-0 z-10 bg-background border-r border-border flex">
+              <div className="sticky left-0 z-20 bg-background border-r border-border flex">
                 <div className="w-64 py-[5px] px-2 flex items-center border-r border-border">
                   <Input
                     value={emptyRows['__global__'] || ''}
