@@ -1,10 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { EditablePiecePopover } from "./EditablePiecePopover";
+import { Input } from "@/components/ui/input";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { Edit, Copy, Trash } from "lucide-react";
+import { EditPieceDialog } from "./EditPieceDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 interface MediaPiece {
@@ -20,6 +25,7 @@ interface MediaPiece {
   global_cost?: number;
   start_date: string;
   end_date: string;
+  project_id: string;
 }
 
 interface MediaInsertion {
@@ -38,7 +44,7 @@ interface MediaPlanGanttChartProps {
   categories: any[];
   onCellClick?: (pieceId: string, date: Date) => void;
   onUpdate?: () => void;
-  editMode?: boolean;
+  projectId?: string;
 }
 
 export function MediaPlanGanttChart({ 
@@ -49,10 +55,17 @@ export function MediaPlanGanttChart({
   categories = [],
   onCellClick,
   onUpdate,
-  editMode = false
+  projectId
 }: MediaPlanGanttChartProps) {
+  const { toast } = useToast();
   const [groupedPieces, setGroupedPieces] = useState<Record<string, MediaPiece[]>>({});
   const [dateRange, setDateRange] = useState<Date[]>([]);
+  const [editingPieceId, setEditingPieceId] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState<string>('');
+  const [emptyRows, setEmptyRows] = useState<Record<string, string>>({});
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedPieceForDialog, setSelectedPieceForDialog] = useState<MediaPiece | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Group pieces by category
@@ -87,6 +100,173 @@ export function MediaPlanGanttChart({
     const dateStr = format(date, 'yyyy-MM-dd');
     return dateStr >= piece.start_date && dateStr <= piece.end_date;
   };
+
+  const handleStartEdit = (piece: MediaPiece) => {
+    setEditingPieceId(piece.id);
+    setEditingValue(piece.name);
+  };
+
+  const handleSaveName = async () => {
+    if (!editingPieceId || !editingValue.trim()) {
+      setEditingPieceId(null);
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('media_pieces')
+        .update({ name: editingValue.trim() })
+        .eq('id', editingPieceId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Nome atualizado",
+        description: "O nome da peça foi atualizado com sucesso.",
+      });
+
+      onUpdate?.();
+      setEditingPieceId(null);
+    } catch (error) {
+      console.error('Error updating name:', error);
+      toast({
+        title: "Erro ao atualizar",
+        description: "Não foi possível atualizar o nome da peça.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPieceId(null);
+    setEditingValue('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSaveName();
+    } else if (e.key === 'Escape') {
+      handleCancelEdit();
+    }
+  };
+
+  const handleCreateFromEmptyRow = async (categoryId: string, name: string) => {
+    if (!name.trim() || !projectId) return;
+
+    try {
+      const category = categories.find(c => c.id === categoryId);
+      
+      const { error } = await supabase
+        .from('media_pieces')
+        .insert([{
+          project_id: projectId,
+          category_id: categoryId,
+          name: name.trim(),
+          channel: '',
+          media_type: 'online',
+          piece_type: '',
+          start_date: format(startDate, 'yyyy-MM-dd'),
+          end_date: format(endDate, 'yyyy-MM-dd'),
+        }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Peça criada",
+        description: "Nova peça de mídia adicionada com sucesso.",
+      });
+
+      // Clear empty row
+      setEmptyRows(prev => {
+        const newRows = { ...prev };
+        delete newRows[categoryId];
+        return newRows;
+      });
+
+      onUpdate?.();
+    } catch (error) {
+      console.error('Error creating piece:', error);
+      toast({
+        title: "Erro ao criar peça",
+        description: "Não foi possível criar a peça de mídia.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEmptyRowKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, categoryId: string) => {
+    if (e.key === 'Enter') {
+      const value = emptyRows[categoryId];
+      if (value?.trim()) {
+        handleCreateFromEmptyRow(categoryId, value);
+      }
+    }
+  };
+
+  const handleDuplicate = async (piece: MediaPiece) => {
+    try {
+      const { id, category_name, ...data } = piece;
+      const { error } = await supabase
+        .from('media_pieces')
+        .insert([{ 
+          ...data,
+          name: `${data.name} (cópia)`,
+        }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Peça duplicada",
+        description: "A peça foi duplicada com sucesso.",
+      });
+
+      onUpdate?.();
+    } catch (error) {
+      console.error('Error duplicating piece:', error);
+      toast({
+        title: "Erro ao duplicar",
+        description: "Não foi possível duplicar a peça.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (pieceId: string) => {
+    try {
+      const { error } = await supabase
+        .from('media_pieces')
+        .delete()
+        .eq('id', pieceId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Peça excluída",
+        description: "A peça foi excluída com sucesso.",
+      });
+
+      onUpdate?.();
+    } catch (error) {
+      console.error('Error deleting piece:', error);
+      toast({
+        title: "Erro ao excluir",
+        description: "Não foi possível excluir a peça.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleOpenDetailsDialog = (piece: MediaPiece) => {
+    setSelectedPieceForDialog(piece);
+    setEditDialogOpen(true);
+  };
+
+  useEffect(() => {
+    if (editingPieceId && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editingPieceId]);
 
   return (
     <Card className="w-full">
@@ -127,26 +307,44 @@ export function MediaPlanGanttChart({
               {/* Pieces in category */}
               {categoryPieces.map((piece) => (
                 <div key={piece.id} className="flex border-b border-border hover:bg-muted/30">
-                  {editMode ? (
-                    <EditablePiecePopover
-                      piece={piece}
-                      categories={categories}
-                      onUpdate={() => onUpdate?.()}
-                      trigger={
-                        <div className="sticky left-0 z-10 bg-background border-r border-border cursor-pointer">
-                          <div className="w-64 py-[5px] px-2 flex items-center">
+                  <ContextMenu>
+                    <ContextMenuTrigger asChild>
+                      <div 
+                        className="sticky left-0 z-10 bg-background border-r border-border cursor-pointer hover:bg-muted/50"
+                        onClick={() => handleStartEdit(piece)}
+                      >
+                        <div className="w-64 py-[5px] px-2 flex items-center">
+                          {editingPieceId === piece.id ? (
+                            <Input
+                              ref={inputRef}
+                              value={editingValue}
+                              onChange={(e) => setEditingValue(e.target.value)}
+                              onKeyDown={handleKeyDown}
+                              onBlur={handleSaveName}
+                              className="h-6 text-sm font-medium px-1 py-0"
+                            />
+                          ) : (
                             <span className="text-sm font-medium truncate">{piece.name}</span>
-                          </div>
+                          )}
                         </div>
-                      }
-                    />
-                  ) : (
-                    <div className="sticky left-0 z-10 bg-background border-r border-border">
-                      <div className="w-64 py-[5px] px-2 flex items-center">
-                        <span className="text-sm font-medium truncate">{piece.name}</span>
                       </div>
-                    </div>
-                  )}
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                      <ContextMenuItem onClick={() => handleOpenDetailsDialog(piece)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Editar detalhes
+                      </ContextMenuItem>
+                      <ContextMenuItem onClick={() => handleDuplicate(piece)}>
+                        <Copy className="mr-2 h-4 w-4" />
+                        Duplicar
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem onClick={() => handleDelete(piece.id)} className="text-destructive focus:text-destructive">
+                        <Trash className="mr-2 h-4 w-4" />
+                        Excluir
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
 
                   {/* Date cells */}
                   <div className="flex">
@@ -175,6 +373,29 @@ export function MediaPlanGanttChart({
                   </div>
                 </div>
               ))}
+
+              {/* Empty row for adding new piece */}
+              <div className="flex border-b border-border hover:bg-muted/20">
+                <div className="sticky left-0 z-10 bg-background border-r border-border">
+                  <div className="w-64 py-[5px] px-2 flex items-center">
+                    <Input
+                      value={emptyRows[category] || ''}
+                      onChange={(e) => setEmptyRows(prev => ({ ...prev, [category]: e.target.value }))}
+                      onKeyDown={(e) => handleEmptyRowKeyDown(e, categoryPieces[0]?.category_id)}
+                      placeholder="Digite para adicionar nova peça..."
+                      className="h-6 text-sm px-1 py-0 text-muted-foreground border-none focus-visible:ring-0"
+                    />
+                  </div>
+                </div>
+                <div className="flex">
+                  {dateRange.map((date) => (
+                    <div
+                      key={date.toISOString()}
+                      className="w-[26px] h-[26px] flex-shrink-0 border-r border-border bg-muted/10"
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           ))}
 
@@ -185,6 +406,14 @@ export function MediaPlanGanttChart({
           )}
         </div>
       </ScrollArea>
+
+      <EditPieceDialog
+        piece={selectedPieceForDialog}
+        categories={categories}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onUpdate={() => onUpdate?.()}
+      />
     </Card>
   );
 }
