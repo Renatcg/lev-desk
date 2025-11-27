@@ -155,15 +155,26 @@ export function MediaPlanGanttChart({
     }
   };
 
-  const handleCreateFromEmptyRow = async (categoryId: string, categoryName: string, name: string) => {
+  const handleCreateFromEmptyRow = async (key: string, name: string) => {
     if (!name.trim() || !projectId) return;
+
+    // Get the last category from existing pieces
+    const lastPiece = pieces[pieces.length - 1];
+    if (!lastPiece) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Não há peças existentes para determinar a categoria.",
+      });
+      return;
+    }
 
     try {
       const { error } = await supabase
         .from('media_pieces')
         .insert([{
           project_id: projectId,
-          category_id: categoryId,
+          category_id: lastPiece.category_id,
           name: name.trim(),
           channel: '',
           media_type: 'online',
@@ -177,7 +188,7 @@ export function MediaPlanGanttChart({
       // Clear empty row
       setEmptyRows(prev => {
         const newRows = { ...prev };
-        delete newRows[categoryName];
+        delete newRows[key];
         return newRows;
       });
 
@@ -192,11 +203,11 @@ export function MediaPlanGanttChart({
     }
   };
 
-  const handleEmptyRowKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, categoryId: string, categoryName: string) => {
+  const handleEmptyRowKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, key: string) => {
     if (e.key === 'Enter') {
-      const value = emptyRows[categoryName];
+      const value = emptyRows[key];
       if (value?.trim()) {
-        handleCreateFromEmptyRow(categoryId, categoryName, value);
+        handleCreateFromEmptyRow(key, value);
       }
     }
   };
@@ -361,31 +372,33 @@ export function MediaPlanGanttChart({
                   </div>
                 </div>
               ))}
-
-              {/* Empty row for adding new piece */}
-              <div className="flex border-b border-border hover:bg-muted/20">
-                <div className="sticky left-0 z-10 bg-background border-r border-border">
-                  <div className="w-64 py-[5px] px-2 flex items-center">
-                    <Input
-                      value={emptyRows[category] || ''}
-                      onChange={(e) => setEmptyRows(prev => ({ ...prev, [category]: e.target.value }))}
-                      onKeyDown={(e) => handleEmptyRowKeyDown(e, categoryPieces[0]?.category_id, category)}
-                      placeholder="Digite para adicionar nova peça..."
-                      className="h-6 text-sm px-1 py-0 text-muted-foreground border-none focus-visible:ring-0"
-                    />
-                  </div>
-                </div>
-                <div className="flex">
-                  {dateRange.map((date) => (
-                    <div
-                      key={date.toISOString()}
-                      className="w-[26px] h-[26px] flex-shrink-0 border-r border-border bg-muted/10"
-                    />
-                  ))}
-                </div>
-              </div>
             </div>
           ))}
+
+          {/* Single empty row at the end for adding new pieces */}
+          {pieces.length > 0 && (
+            <div className="flex border-b border-border hover:bg-muted/20">
+              <div className="sticky left-0 z-10 bg-background border-r border-border">
+                <div className="w-64 py-[5px] px-2 flex items-center">
+                  <Input
+                    value={emptyRows['__global__'] || ''}
+                    onChange={(e) => setEmptyRows(prev => ({ ...prev, '__global__': e.target.value }))}
+                    onKeyDown={(e) => handleEmptyRowKeyDown(e, '__global__')}
+                    placeholder="Digite para adicionar nova peça..."
+                    className="h-6 text-sm px-1 py-0 text-muted-foreground border-none focus-visible:ring-0"
+                  />
+                </div>
+              </div>
+              <div className="flex">
+                {dateRange.map((date) => (
+                  <div
+                    key={date.toISOString()}
+                    className="w-[26px] h-[26px] flex-shrink-0 border-r border-border bg-muted/10"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           {pieces.length === 0 && (
             <div className="p-8 text-center text-muted-foreground">
