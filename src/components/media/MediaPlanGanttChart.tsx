@@ -123,7 +123,7 @@ export function MediaPlanGanttChart({
                   <div className="flex border-b border-border hover:bg-muted/30">
                     <HoverCardTrigger asChild>
                       <div className="sticky left-0 z-10 bg-background border-r border-border cursor-pointer">
-                        <div className="w-64 p-2 flex items-center">
+                        <div className="w-64 py-[5px] px-2 flex items-center">
                           <span className="text-sm font-medium truncate">{piece.name}</span>
                         </div>
                       </div>
@@ -189,7 +189,7 @@ export function MediaPlanGanttChart({
                           <div
                             key={date.toISOString()}
                             className={`
-                              w-[26px] h-12 flex-shrink-0 border-r border-border flex items-center justify-center
+                              w-[26px] h-[26px] flex-shrink-0 border-r border-border flex items-center justify-center
                               cursor-pointer transition-colors
                               ${isActive ? 'bg-primary/5' : 'bg-muted/20'}
                               ${totalInsertions > 0 ? 'bg-primary/30 font-semibold border-2 border-primary/50' : ''}
