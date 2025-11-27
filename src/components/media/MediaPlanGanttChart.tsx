@@ -112,18 +112,23 @@ export function MediaPlanGanttChart({
       return;
     }
 
+    // Buscar peça original para comparar
+    const originalPiece = pieces.find(p => p.id === editingPieceId);
+    const newName = editingValue.trim();
+    
+    // Só salvar se o nome realmente mudou
+    if (originalPiece && originalPiece.name === newName) {
+      setEditingPieceId(null);
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('media_pieces')
-        .update({ name: editingValue.trim() })
+        .update({ name: newName })
         .eq('id', editingPieceId);
 
       if (error) throw error;
-
-      toast({
-        title: "Nome atualizado",
-        description: "O nome da peça foi atualizado com sucesso.",
-      });
 
       onUpdate?.();
       setEditingPieceId(null);
@@ -150,12 +155,10 @@ export function MediaPlanGanttChart({
     }
   };
 
-  const handleCreateFromEmptyRow = async (categoryId: string, name: string) => {
+  const handleCreateFromEmptyRow = async (categoryId: string, categoryName: string, name: string) => {
     if (!name.trim() || !projectId) return;
 
     try {
-      const category = categories.find(c => c.id === categoryId);
-      
       const { error } = await supabase
         .from('media_pieces')
         .insert([{
@@ -171,15 +174,10 @@ export function MediaPlanGanttChart({
 
       if (error) throw error;
 
-      toast({
-        title: "Peça criada",
-        description: "Nova peça de mídia adicionada com sucesso.",
-      });
-
       // Clear empty row
       setEmptyRows(prev => {
         const newRows = { ...prev };
-        delete newRows[categoryId];
+        delete newRows[categoryName];
         return newRows;
       });
 
@@ -194,11 +192,11 @@ export function MediaPlanGanttChart({
     }
   };
 
-  const handleEmptyRowKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, categoryId: string) => {
+  const handleEmptyRowKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, categoryId: string, categoryName: string) => {
     if (e.key === 'Enter') {
-      const value = emptyRows[categoryId];
+      const value = emptyRows[categoryName];
       if (value?.trim()) {
-        handleCreateFromEmptyRow(categoryId, value);
+        handleCreateFromEmptyRow(categoryId, categoryName, value);
       }
     }
   };
@@ -214,11 +212,6 @@ export function MediaPlanGanttChart({
         }]);
 
       if (error) throw error;
-
-      toast({
-        title: "Peça duplicada",
-        description: "A peça foi duplicada com sucesso.",
-      });
 
       onUpdate?.();
     } catch (error) {
@@ -239,11 +232,6 @@ export function MediaPlanGanttChart({
         .eq('id', pieceId);
 
       if (error) throw error;
-
-      toast({
-        title: "Peça excluída",
-        description: "A peça foi excluída com sucesso.",
-      });
 
       onUpdate?.();
     } catch (error) {
@@ -381,7 +369,7 @@ export function MediaPlanGanttChart({
                     <Input
                       value={emptyRows[category] || ''}
                       onChange={(e) => setEmptyRows(prev => ({ ...prev, [category]: e.target.value }))}
-                      onKeyDown={(e) => handleEmptyRowKeyDown(e, categoryPieces[0]?.category_id)}
+                      onKeyDown={(e) => handleEmptyRowKeyDown(e, categoryPieces[0]?.category_id, category)}
                       placeholder="Digite para adicionar nova peça..."
                       className="h-6 text-sm px-1 py-0 text-muted-foreground border-none focus-visible:ring-0"
                     />
