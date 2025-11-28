@@ -75,6 +75,7 @@ const LandBank = () => {
     }
   };
 
+  // Handler para adicionar novo terreno
   const handleAddTerreno = () => {
     if (grupos.length === 0) {
       toast.error("Nenhum grupo econômico cadastrado. Por favor, cadastre um grupo antes de adicionar terrenos.");
