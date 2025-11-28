@@ -9,6 +9,23 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSystemSettings } from "@/hooks/useSystemSettings";
 import levLogo from "@/assets/lev-logo.png";
+import { z } from "zod";
+
+// Validation schemas
+const loginSchema = z.object({
+  email: z.string().email("Email inválido").max(255),
+  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").max(128)
+});
+
+const signupSchema = z.object({
+  name: z.string().trim().min(1, "Nome é obrigatório").max(100),
+  email: z.string().email("Email inválido").max(255),
+  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").max(128),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "As senhas não coincidem",
+  path: ["confirmPassword"]
+});
 
 const Login = () => {
   const navigate = useNavigate();
@@ -39,6 +56,18 @@ const Login = () => {
     setLoading(true);
 
     try {
+      // Validate input
+      const validation = loginSchema.safeParse({ email: loginEmail, password: loginPassword });
+      if (!validation.success) {
+        toast({
+          title: "Erro de validação",
+          description: validation.error.errors[0].message,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await signIn(loginEmail, loginPassword);
 
       if (error) {
@@ -75,29 +104,27 @@ const Login = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validações
-    if (signupPassword !== signupConfirmPassword) {
-      toast({
-        title: "Erro no cadastro",
-        description: "As senhas não coincidem.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (signupPassword.length < 6) {
-      toast({
-        title: "Erro no cadastro",
-        description: "A senha deve ter pelo menos 6 caracteres.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setLoading(true);
 
     try {
+      // Validate input
+      const validation = signupSchema.safeParse({ 
+        name: signupName, 
+        email: signupEmail, 
+        password: signupPassword,
+        confirmPassword: signupConfirmPassword
+      });
+      
+      if (!validation.success) {
+        toast({
+          title: "Erro de validação",
+          description: validation.error.errors[0].message,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await signUp(signupEmail, signupPassword, signupName);
 
       if (error) {
