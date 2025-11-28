@@ -18,6 +18,14 @@ export interface ProjectDocument {
   uploaded_by: string | null;
 }
 
+const sanitizeFileName = (fileName: string): string => {
+  return fileName
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+    .replace(/\s+/g, '_') // Espaços → underscores
+    .replace(/[^a-zA-Z0-9._-]/g, ''); // Remove caracteres especiais
+};
+
 export const useProjectDocuments = (projectId: string) => {
   const queryClient = useQueryClient();
 
@@ -45,7 +53,8 @@ export const useProjectDocuments = (projectId: string) => {
       folderId?: string | null;
       description?: string;
     }) => {
-      const filePath = `${projectId}/${Date.now()}_${file.name}`;
+      const sanitizedFileName = sanitizeFileName(file.name);
+      const filePath = `${projectId}/${Date.now()}_${sanitizedFileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("project-documents")
