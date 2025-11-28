@@ -31,17 +31,18 @@ interface TerrenoFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  defaultGrupoId?: string;
 }
 
-export const TerrenoForm = ({ open, onOpenChange, onSuccess }: TerrenoFormProps) => {
+export const TerrenoForm = ({ open, onOpenChange, onSuccess, defaultGrupoId }: TerrenoFormProps) => {
   const [loading, setLoading] = useState(false);
   const [grupos, setGrupos] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     nome: "",
-    grupo_economico_id: "",
+    grupo_economico_id: defaultGrupoId || "",
     area: "",
-    matricula: "",
     status: "available",
+    matricula: "",
     cep: "",
     logradouro: "",
     numero: "",
@@ -52,6 +53,13 @@ export const TerrenoForm = ({ open, onOpenChange, onSuccess }: TerrenoFormProps)
     latitude: undefined as number | undefined,
     longitude: undefined as number | undefined,
   });
+
+  // Update grupo_economico_id when defaultGrupoId changes
+  useEffect(() => {
+    if (defaultGrupoId) {
+      setFormData(prev => ({ ...prev, grupo_economico_id: defaultGrupoId }));
+    }
+  }, [defaultGrupoId]);
 
   useEffect(() => {
     if (open) {

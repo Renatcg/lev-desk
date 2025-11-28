@@ -1,15 +1,36 @@
 import { useState, useEffect } from "react";
-import { Building2, Plus, Search } from "lucide-react";
+import { Building2, Plus, Search, MoreVertical, Pencil, MapPinPlus, Archive } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GrupoEconomicoForm } from "@/components/landbank/GrupoEconomicoForm";
+import { TerrenoForm } from "@/components/landbank/TerrenoForm";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const GruposEconomicos = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [showTerrenoForm, setShowTerrenoForm] = useState(false);
+  const [grupoToEdit, setGrupoToEdit] = useState<any>(null);
+  const [selectedGrupoForTerreno, setSelectedGrupoForTerreno] = useState<string>("");
+  const [grupoToArchive, setGrupoToArchive] = useState<any>(null);
   const [grupos, setGrupos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,6 +44,7 @@ const GruposEconomicos = () => {
       const { data, error } = await supabase
         .from('companies')
         .select('*, terrenos:terrenos(count)')
+        .neq('status', 'archived')
         .order('nome_comercial');
 
       if (error) throw error;
@@ -33,6 +55,46 @@ const GruposEconomicos = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEdit = (grupo: any) => {
+    setGrupoToEdit(grupo);
+    setShowForm(true);
+  };
+
+  const handleAddTerreno = (grupoId: string) => {
+    setSelectedGrupoForTerreno(grupoId);
+    setShowTerrenoForm(true);
+  };
+
+  const handleArchive = async () => {
+    if (!grupoToArchive) return;
+
+    try {
+      const { error } = await supabase
+        .from('companies')
+        .update({ status: 'archived' })
+        .eq('id', grupoToArchive.id);
+
+      if (error) throw error;
+
+      toast.success("Grupo econômico arquivado com sucesso!");
+      fetchGrupos();
+      setGrupoToArchive(null);
+    } catch (error) {
+      console.error('Erro ao arquivar grupo:', error);
+      toast.error("Erro ao arquivar grupo econômico");
+    }
+  };
+
+  const handleFormSuccess = () => {
+    fetchGrupos();
+    setGrupoToEdit(null);
+  };
+
+  const handleTerrenoFormSuccess = () => {
+    setSelectedGrupoForTerreno("");
+    toast.success("Terreno adicionado com sucesso!");
   };
 
   const filteredGrupos = grupos.filter(grupo =>
@@ -50,7 +112,10 @@ const GruposEconomicos = () => {
             Gestão de empresas do grupo
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
+        <Button onClick={() => {
+          setGrupoToEdit(null);
+          setShowForm(true);
+        }}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Grupo
         </Button>
@@ -99,7 +164,33 @@ const GruposEconomicos = () => {
                       CNPJ: {grupo.cnpj}
                     </p>
                   </div>
-                  <Building2 className="h-5 w-5 text-primary" />
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-5 w-5 text-primary" />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(grupo)}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleAddTerreno(grupo.id)}>
+                          <MapPinPlus className="mr-2 h-4 w-4" />
+                          Adicionar Terreno
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => setGrupoToArchive(grupo)}
+                          className="text-destructive"
+                        >
+                          <Archive className="mr-2 h-4 w-4" />
+                          Arquivar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -141,8 +232,32 @@ const GruposEconomicos = () => {
       <GrupoEconomicoForm
         open={showForm}
         onOpenChange={setShowForm}
-        onSuccess={fetchGrupos}
+        onSuccess={handleFormSuccess}
+        grupoToEdit={grupoToEdit}
       />
+
+      <TerrenoForm
+        open={showTerrenoForm}
+        onOpenChange={setShowTerrenoForm}
+        onSuccess={handleTerrenoFormSuccess}
+        defaultGrupoId={selectedGrupoForTerreno}
+      />
+
+      <AlertDialog open={!!grupoToArchive} onOpenChange={() => setGrupoToArchive(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Arquivar Grupo Econômico?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação irá arquivar o grupo "{grupoToArchive?.nome_comercial || grupoToArchive?.razao_social}". 
+              Os terrenos associados não serão afetados, mas o grupo não aparecerá mais na listagem.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleArchive}>Arquivar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
