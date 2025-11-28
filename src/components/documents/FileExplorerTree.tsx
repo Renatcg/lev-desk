@@ -136,6 +136,8 @@ const TreeNode = ({
                 value={folder.name}
                 onSave={(newName) => onRenameFolder(folder.id, newName)}
                 className="text-sm flex-1"
+                startInEditMode={folder.id === newFolderId}
+                onCancel={folder.id === newFolderId ? onCancelNewFolder : undefined}
               />
             ) : null}
           </div>
@@ -163,63 +165,26 @@ const TreeNode = ({
 
       {isExpanded && (
         <div>
-          {childFolders.map((childFolder) => {
-            const isNewFolder = childFolder.id === newFolderId;
-            return (
-              <div key={childFolder.id}>
-                <ContextMenu>
-                  <ContextMenuTrigger>
-                    <div
-                      className="flex items-center gap-1 py-1 px-2 hover:bg-accent/50 rounded cursor-pointer group"
-                      style={{ paddingLeft: `${(level + 1) * 16 + 8}px` }}
-                    >
-                      <div className="w-5" />
-                      <Folder className="h-4 w-4 text-primary flex-shrink-0" />
-                      <EditableName
-                        value={childFolder.name}
-                        onSave={(newName) => onRenameFolder(childFolder.id, newName)}
-                        className="text-sm flex-1"
-                        startInEditMode={isNewFolder}
-                        onCancel={isNewFolder ? onCancelNewFolder : undefined}
-                      />
-                    </div>
-                  </ContextMenuTrigger>
-                  <ContextMenuContent>
-                    <ContextMenuItem onClick={() => onCreateFolder(childFolder.id)}>
-                      Nova Subpasta
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => onUploadDocument(childFolder.id)}>
-                      Upload Documento
-                    </ContextMenuItem>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem
-                      className="text-destructive"
-                      onClick={() => onDeleteFolder(childFolder.id)}
-                    >
-                      Excluir Pasta
-                    </ContextMenuItem>
-                  </ContextMenuContent>
-                </ContextMenu>
-                <TreeNode
-                  folder={childFolder}
-                  folders={folders}
-                  documents={documents}
-                  level={level + 1}
-                  selectedDocumentId={selectedDocumentId}
-                  onDocumentSelect={onDocumentSelect}
-                  onCreateFolder={onCreateFolder}
-                  onRenameFolder={onRenameFolder}
-                  onDeleteFolder={onDeleteFolder}
-                  onUploadDocument={onUploadDocument}
-                  onRenameDocument={onRenameDocument}
-                  onDeleteDocument={onDeleteDocument}
-                  onDownloadDocument={onDownloadDocument}
-                  newFolderId={newFolderId}
-                  onCancelNewFolder={onCancelNewFolder}
-                />
-              </div>
-            );
-          })}
+          {childFolders.map((childFolder) => (
+            <TreeNode
+              key={childFolder.id}
+              folder={childFolder}
+              folders={folders}
+              documents={documents}
+              level={level + 1}
+              selectedDocumentId={selectedDocumentId}
+              onDocumentSelect={onDocumentSelect}
+              onCreateFolder={onCreateFolder}
+              onRenameFolder={onRenameFolder}
+              onDeleteFolder={onDeleteFolder}
+              onUploadDocument={onUploadDocument}
+              onRenameDocument={onRenameDocument}
+              onDeleteDocument={onDeleteDocument}
+              onDownloadDocument={onDownloadDocument}
+              newFolderId={newFolderId}
+              onCancelNewFolder={onCancelNewFolder}
+            />
+          ))}
 
           {folderDocuments.map((doc) => {
             const FileIcon = getFileIcon(doc.mime_type);
