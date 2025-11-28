@@ -8,6 +8,7 @@ import { AuthProvider, ProtectedRoute } from "./lib/auth";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import LandBank from "./pages/LandBank";
+import GruposEconomicos from "./pages/GruposEconomicos";
 import Projects from "./pages/Projects";
 import MediaPlan from "./pages/MediaPlan";
 import MediaPlanFullscreen from "./pages/MediaPlanFullscreen";
@@ -49,6 +50,16 @@ const App = () => {
                 <ProtectedRoute>
                   <Layout>
                     <LandBank />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/grupos-economicos"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <GruposEconomicos />
                   </Layout>
                 </ProtectedRoute>
               }
