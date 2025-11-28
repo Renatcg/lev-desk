@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Building2, LayoutDashboard, MapPin, Users, FileText, Briefcase, Settings, LogOut, Moon, Sun } from "lucide-react";
+import { Building2, LayoutDashboard, MapPin, Users, FileText, Briefcase, Settings, LogOut, Moon, Sun, DollarSign, Palette, Zap, Archive, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "next-themes";
 import { useSystemSettings } from "@/hooks/useSystemSettings";
 import levLogo from "@/assets/lev-logo.png";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface LayoutProps {
   children: ReactNode;
@@ -32,15 +33,49 @@ const Layout = ({ children }: LayoutProps) => {
     });
   };
 
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    administrativo: false,
+    configuracoes: false,
+    antigas: false,
+  });
+
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Grupos Econômicos", href: "/grupos-economicos", icon: Building2 },
-    { name: "LandBank", href: "/landbank", icon: MapPin },
     { name: "Projetos", href: "/projects", icon: Building2 },
-    { name: "CRM", href: "/crm", icon: Briefcase },
-    { name: "Documentos", href: "/documents", icon: FileText },
-    { name: "Usuários", href: "/users", icon: Users },
-    { name: "Configurações", href: "/settings", icon: Settings },
+    { 
+      name: "Administrativo", 
+      icon: Briefcase,
+      key: "administrativo",
+      children: [
+        { name: "Contratos", href: "/contracts", icon: FileText },
+        { name: "Financeiro", href: "/financial", icon: DollarSign },
+      ]
+    },
+    { 
+      name: "Configurações", 
+      icon: Settings,
+      key: "configuracoes",
+      children: [
+        { name: "Usuários", href: "/users", icon: Users },
+        { name: "Layout do Sistema", href: "/settings/layout", icon: Palette },
+        { name: "Automações", href: "/settings/automations", icon: Zap },
+      ]
+    },
+    { 
+      name: "Páginas Antigas", 
+      icon: Archive,
+      key: "antigas",
+      children: [
+        { name: "LandBank", href: "/landbank", icon: MapPin },
+        { name: "Grupos Econômicos", href: "/grupos-economicos", icon: Building2 },
+        { name: "CRM", href: "/crm", icon: Briefcase },
+        { name: "Documentos", href: "/documents", icon: FileText },
+      ]
+    },
   ];
 
   return (
@@ -57,6 +92,62 @@ const Layout = ({ children }: LayoutProps) => {
           <nav className="flex-1 space-y-1 p-4">
             {navigation.map((item) => {
               const Icon = item.icon;
+              
+              // Check if this is a parent item with children
+              if ('children' in item && item.children) {
+                const hasActiveChild = item.children.some(
+                  child => location.pathname === child.href || location.pathname.startsWith(child.href + '/')
+                );
+                const isOpen = openSections[item.key || ''] || hasActiveChild;
+                
+                return (
+                  <Collapsible
+                    key={item.name}
+                    open={isOpen}
+                    onOpenChange={() => toggleSection(item.key || '')}
+                  >
+                    <CollapsibleTrigger
+                      className={cn(
+                        "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                        hasActiveChild
+                          ? "bg-accent text-accent-foreground"
+                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <Icon className="h-5 w-5" />
+                      <span className="flex-1 text-left">{item.name}</span>
+                      {isOpen ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="space-y-1 pt-1">
+                      {item.children.map((child) => {
+                        const ChildIcon = child.icon;
+                        const isActive = location.pathname === child.href || location.pathname.startsWith(child.href + '/');
+                        return (
+                          <Link
+                            key={child.name}
+                            to={child.href}
+                            className={cn(
+                              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ml-6",
+                              isActive
+                                ? "bg-primary text-primary-foreground"
+                                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                            )}
+                          >
+                            <ChildIcon className="h-4 w-4" />
+                            {child.name}
+                          </Link>
+                        );
+                      })}
+                    </CollapsibleContent>
+                  </Collapsible>
+                );
+              }
+              
+              // Regular item without children
               const isActive = location.pathname === item.href;
               return (
                 <Link
