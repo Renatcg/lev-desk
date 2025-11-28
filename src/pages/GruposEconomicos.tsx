@@ -43,7 +43,11 @@ const GruposEconomicos = () => {
     try {
       const { data, error } = await supabase
         .from('companies')
-        .select('*, terrenos:terrenos(count)')
+        .select(`
+          *,
+          terrenos:terrenos!grupo_economico_id(count),
+          projects:projects!company_id(count)
+        `)
         .neq('status', 'archived')
         .order('nome_comercial');
 
@@ -208,10 +212,14 @@ const GruposEconomicos = () => {
                   </div>
                 )}
 
-                <div className="pt-2 border-t">
+                <div className="pt-2 border-t space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">Terrenos</span>
                     <span className="font-semibold">{grupo.terrenos?.[0]?.count || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Projetos</span>
+                    <span className="font-semibold">{grupo.projects?.[0]?.count || 0}</span>
                   </div>
                 </div>
 

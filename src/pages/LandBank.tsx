@@ -58,6 +58,7 @@ const LandBank = () => {
             razao_social
           )
         `)
+        .is('project_id', null)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -333,8 +334,12 @@ const LandBank = () => {
 
       <TerrenoForm
         open={showForm}
-        onOpenChange={setShowForm}
+        onOpenChange={(open) => {
+          setShowForm(open);
+          if (!open) setTerrenoToEdit(null);
+        }}
         onSuccess={fetchTerrenos}
+        terrenoToEdit={terrenoToEdit}
       />
     </div>
   );

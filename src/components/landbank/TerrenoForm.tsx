@@ -31,9 +31,10 @@ interface TerrenoFormProps {
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
   defaultGrupoId?: string;
+  terrenoToEdit?: any;
 }
 
-export const TerrenoForm = ({ open, onOpenChange, onSuccess, defaultGrupoId }: TerrenoFormProps) => {
+export const TerrenoForm = ({ open, onOpenChange, onSuccess, defaultGrupoId, terrenoToEdit }: TerrenoFormProps) => {
   const [loading, setLoading] = useState(false);
   const [grupos, setGrupos] = useState<any[]>([]);
   const [formData, setFormData] = useState({
@@ -63,8 +64,46 @@ export const TerrenoForm = ({ open, onOpenChange, onSuccess, defaultGrupoId }: T
   useEffect(() => {
     if (open) {
       fetchGrupos();
+      
+      // Preencher formulário quando editando
+      if (terrenoToEdit) {
+        setFormData({
+          nome: terrenoToEdit.nome || "",
+          grupo_economico_id: terrenoToEdit.grupo_economico_id || "",
+          area: terrenoToEdit.area?.toString() || "",
+          status: terrenoToEdit.status || "available",
+          matricula: terrenoToEdit.matricula || "",
+          cep: terrenoToEdit.cep || "",
+          logradouro: terrenoToEdit.logradouro || "",
+          numero: terrenoToEdit.numero || "",
+          complemento: terrenoToEdit.complemento || "",
+          bairro: terrenoToEdit.bairro || "",
+          cidade: terrenoToEdit.cidade || "",
+          estado: terrenoToEdit.estado || "",
+          latitude: terrenoToEdit.latitude || undefined,
+          longitude: terrenoToEdit.longitude || undefined,
+        });
+      } else if (!defaultGrupoId) {
+        // Resetar formulário apenas quando não está editando e não tem grupo padrão
+        setFormData({
+          nome: "",
+          grupo_economico_id: "",
+          area: "",
+          matricula: "",
+          status: "available",
+          cep: "",
+          logradouro: "",
+          numero: "",
+          complemento: "",
+          bairro: "",
+          cidade: "",
+          estado: "",
+          latitude: undefined,
+          longitude: undefined,
+        });
+      }
     }
-  }, [open]);
+  }, [open, terrenoToEdit, defaultGrupoId]);
 
   const fetchGrupos = async () => {
     try {
@@ -116,7 +155,7 @@ export const TerrenoForm = ({ open, onOpenChange, onSuccess, defaultGrupoId }: T
 
     setLoading(true);
     try {
-      const { error } = await supabase.from('terrenos').insert([{
+      const dataToSave = {
         nome: formData.nome,
         grupo_economico_id: formData.grupo_economico_id,
         area: parseFloat(formData.area),
@@ -131,32 +170,33 @@ export const TerrenoForm = ({ open, onOpenChange, onSuccess, defaultGrupoId }: T
         estado: formData.estado || null,
         latitude: formData.latitude || null,
         longitude: formData.longitude || null,
-      }]);
+      };
+
+      let error;
+      
+      if (terrenoToEdit) {
+        // UPDATE
+        const result = await supabase
+          .from('terrenos')
+          .update(dataToSave)
+          .eq('id', terrenoToEdit.id);
+        error = result.error;
+      } else {
+        // INSERT
+        const result = await supabase
+          .from('terrenos')
+          .insert([dataToSave]);
+        error = result.error;
+      }
 
       if (error) throw error;
 
-      toast.success("Terreno cadastrado com sucesso!");
+      toast.success(terrenoToEdit ? "Terreno atualizado com sucesso!" : "Terreno cadastrado com sucesso!");
       onSuccess();
       onOpenChange(false);
-      setFormData({
-        nome: "",
-        grupo_economico_id: "",
-        area: "",
-        matricula: "",
-        status: "available",
-        cep: "",
-        logradouro: "",
-        numero: "",
-        complemento: "",
-        bairro: "",
-        cidade: "",
-        estado: "",
-        latitude: undefined,
-        longitude: undefined,
-      });
     } catch (error) {
-      console.error('Erro ao criar terreno:', error);
-      toast.error("Erro ao criar terreno");
+      console.error('Erro ao salvar terreno:', error);
+      toast.error("Erro ao salvar terreno");
     } finally {
       setLoading(false);
     }
@@ -166,7 +206,7 @@ export const TerrenoForm = ({ open, onOpenChange, onSuccess, defaultGrupoId }: T
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Novo Terreno</DialogTitle>
+          <DialogTitle>{terrenoToEdit ? "Editar Terreno" : "Novo Terreno"}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
