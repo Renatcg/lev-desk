@@ -41,13 +41,15 @@ const GruposEconomicos = () => {
   const fetchGrupos = async () => {
     setLoading(true);
     try {
+      // Buscar grupos com contagem separada de terrenos (apenas não convertidos) e projetos
       const { data, error } = await supabase
         .from('companies')
         .select(`
           *,
-          terrenos:terrenos!grupo_economico_id(count),
+          terrenos_disponiveis:terrenos!grupo_economico_id(count),
           projects:projects!company_id(count)
         `)
+        .is('terrenos_disponiveis.project_id', null)
         .neq('status', 'archived')
         .order('nome_comercial');
 
@@ -215,7 +217,7 @@ const GruposEconomicos = () => {
                 <div className="pt-2 border-t space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">Terrenos</span>
-                    <span className="font-semibold">{grupo.terrenos?.[0]?.count || 0}</span>
+                    <span className="font-semibold">{grupo.terrenos_disponiveis?.[0]?.count || 0}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">Projetos</span>
