@@ -39,18 +39,14 @@ export const ProjectCard = ({ project, onEdit }: ProjectCardProps) => {
     <Card
       ref={setNodeRef}
       style={style}
-      className="cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
+      {...attributes}
+      {...listeners}
+      className="cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow touch-none"
     >
       <CardHeader className="p-4">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-2 flex-1">
-            <div
-              {...attributes}
-              {...listeners}
-              className="cursor-grab active:cursor-grabbing mt-1"
-            >
-              <GripVertical className="h-4 w-4 text-muted-foreground" />
-            </div>
+            <GripVertical className="h-4 w-4 text-muted-foreground mt-1 flex-shrink-0" />
             <div className="flex-1">
               <h4 className="font-semibold text-sm mb-1">
                 {project.name}
@@ -61,8 +57,13 @@ export const ProjectCard = ({ project, onEdit }: ProjectCardProps) => {
             </div>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <Button variant="ghost" size="icon" className="h-6 w-6">
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-6 w-6"
+                onPointerDown={(e) => e.stopPropagation()}
+              >
                 <MoreVertical className="h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
