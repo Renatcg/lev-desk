@@ -24,6 +24,7 @@ interface LocationPickerProps {
   latitude?: number;
   longitude?: number;
   onLocationChange: (lat: number, lng: number) => void;
+  isOpen?: boolean;
 }
 
 const DraggableMarker = ({ 
@@ -71,19 +72,33 @@ const MapClickHandler = ({
 export const LocationPicker = ({ 
   latitude, 
   longitude, 
-  onLocationChange 
+  onLocationChange,
+  isOpen = true 
 }: LocationPickerProps) => {
   const [position, setPosition] = useState<[number, number]>(
     latitude && longitude ? [latitude, longitude] : [-23.55052, -46.633308] // São Paulo como padrão
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
     if (latitude && longitude) {
       setPosition([latitude, longitude]);
     }
   }, [latitude, longitude]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMapReady(false);
+      const timer = setTimeout(() => {
+        setMapReady(true);
+      }, 150);
+      return () => clearTimeout(timer);
+    } else {
+      setMapReady(false);
+    }
+  }, [isOpen]);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
@@ -151,19 +166,25 @@ export const LocationPicker = ({
       </div>
       
       <div className="rounded-lg overflow-hidden border h-[400px]">
-        <MapContainer
-          center={position}
-          zoom={15}
-          style={{ height: '100%', width: '100%' }}
-          key={`${position[0]}-${position[1]}`}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <DraggableMarker position={position} setPosition={handlePositionChange} />
-          <MapClickHandler onMapClick={handleMapClick} />
-        </MapContainer>
+        {mapReady ? (
+          <MapContainer
+            center={position}
+            zoom={15}
+            style={{ height: '100%', width: '100%' }}
+            key={`${position[0]}-${position[1]}`}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <DraggableMarker position={position} setPosition={handlePositionChange} />
+            <MapClickHandler onMapClick={handleMapClick} />
+          </MapContainer>
+        ) : (
+          <div className="flex items-center justify-center h-full bg-muted">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        )}
       </div>
       
       <p className="text-sm text-muted-foreground">
