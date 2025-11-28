@@ -9,13 +9,13 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ProjectForm } from "@/components/projects/ProjectForm";
+import { ProjectDocuments } from "@/components/documents/ProjectDocuments";
 
 const ProjectDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [project, setProject] = useState<any>(null);
   const [terrenos, setTerrenos] = useState<any[]>([]);
-  const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEditForm, setShowEditForm] = useState(false);
 
@@ -77,17 +77,6 @@ const ProjectDetails = () => {
 
       if (terrenosError) throw terrenosError;
       setTerrenos(terrenosData || []);
-
-      // Buscar documentos relacionados
-      const { data: documentsData, error: documentsError } = await supabase
-        .from('documents')
-        .select('*')
-        .eq('company_id', projectData.company_id)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (documentsError) throw documentsError;
-      setDocuments(documentsData || []);
 
     } catch (error) {
       console.error('Erro ao carregar detalhes do projeto:', error);
@@ -188,7 +177,7 @@ const ProjectDetails = () => {
         <TabsList>
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="terrenos">Terrenos ({terrenos.length})</TabsTrigger>
-          <TabsTrigger value="documents">Documentos ({documents.length})</TabsTrigger>
+          <TabsTrigger value="documents">Documentos</TabsTrigger>
           <TabsTrigger value="history">Histórico</TabsTrigger>
         </TabsList>
 
@@ -314,41 +303,8 @@ const ProjectDetails = () => {
         </TabsContent>
 
         {/* Documents Tab */}
-        <TabsContent value="documents" className="space-y-4">
-          {documents.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
-                Nenhum documento encontrado para a empresa deste projeto
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Documentos da Empresa</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {documents.map((doc) => (
-                    <div
-                      key={doc.id}
-                      className="flex items-start justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors"
-                    >
-                      <div className="flex items-start gap-3 flex-1">
-                        <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{doc.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(doc.created_at).toLocaleDateString('pt-BR')} • 
-                            {doc.size ? ` ${(doc.size / 1024).toFixed(2)} KB` : ' Tamanho desconhecido'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+        <TabsContent value="documents">
+          <ProjectDocuments projectId={id!} />
         </TabsContent>
 
         {/* History Tab */}
