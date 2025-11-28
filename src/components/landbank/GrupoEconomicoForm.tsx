@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,9 +29,10 @@ interface GrupoEconomicoFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  grupoToEdit?: any;
 }
 
-export const GrupoEconomicoForm = ({ open, onOpenChange, onSuccess }: GrupoEconomicoFormProps) => {
+export const GrupoEconomicoForm = ({ open, onOpenChange, onSuccess, grupoToEdit }: GrupoEconomicoFormProps) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     razao_social: "",
@@ -48,6 +49,44 @@ export const GrupoEconomicoForm = ({ open, onOpenChange, onSuccess }: GrupoEcono
     cidade: "",
     estado: "",
   });
+
+  // Populate form when editing
+  useEffect(() => {
+    if (grupoToEdit && open) {
+      setFormData({
+        razao_social: grupoToEdit.razao_social || "",
+        nome_comercial: grupoToEdit.nome_comercial || "",
+        cnpj: grupoToEdit.cnpj || "",
+        email: grupoToEdit.email || "",
+        phone: grupoToEdit.phone || "",
+        responsavel_legal: grupoToEdit.responsavel_legal || "",
+        cep: grupoToEdit.cep || "",
+        logradouro: grupoToEdit.logradouro || "",
+        numero: grupoToEdit.numero || "",
+        complemento: grupoToEdit.complemento || "",
+        bairro: grupoToEdit.bairro || "",
+        cidade: grupoToEdit.cidade || "",
+        estado: grupoToEdit.estado || "",
+      });
+    } else if (!open) {
+      // Reset form when closing
+      setFormData({
+        razao_social: "",
+        nome_comercial: "",
+        cnpj: "",
+        email: "",
+        phone: "",
+        responsavel_legal: "",
+        cep: "",
+        logradouro: "",
+        numero: "",
+        complemento: "",
+        bairro: "",
+        cidade: "",
+        estado: "",
+      });
+    }
+  }, [grupoToEdit, open]);
 
   const handleCNPJDataFetched = (data: any) => {
     setFormData(prev => ({
@@ -136,7 +175,7 @@ export const GrupoEconomicoForm = ({ open, onOpenChange, onSuccess }: GrupoEcono
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Novo Grupo Econômico</DialogTitle>
+          <DialogTitle>{grupoToEdit ? "Editar Grupo Econômico" : "Novo Grupo Econômico"}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">

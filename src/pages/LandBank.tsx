@@ -28,10 +28,12 @@ const LandBank = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [terrenos, setTerrenos] = useState<any[]>([]);
+  const [grupos, setGrupos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchTerrenos();
+    fetchGrupos();
   }, []);
 
   const fetchTerrenos = async () => {
@@ -57,6 +59,28 @@ const LandBank = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchGrupos = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('companies')
+        .select('id, nome_comercial, razao_social')
+        .neq('status', 'archived');
+
+      if (error) throw error;
+      setGrupos(data || []);
+    } catch (error) {
+      console.error('Erro ao buscar grupos:', error);
+    }
+  };
+
+  const handleAddTerreno = () => {
+    if (grupos.length === 0) {
+      toast.error("Nenhum grupo econômico cadastrado. Por favor, cadastre um grupo antes de adicionar terrenos.");
+      return;
+    }
+    setShowForm(true);
   };
 
   const filteredTerrenos = terrenos.filter(terreno =>
@@ -87,7 +111,7 @@ const LandBank = () => {
             Gestão de terrenos e oportunidades de incorporação
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
+        <Button onClick={handleAddTerreno}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Terreno
         </Button>
