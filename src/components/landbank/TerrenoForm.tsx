@@ -314,6 +314,7 @@ export const TerrenoForm = ({ open, onOpenChange, onSuccess, defaultGrupoId }: T
                 latitude={formData.latitude}
                 longitude={formData.longitude}
                 onLocationChange={handleLocationChange}
+                isOpen={open}
               />
             </div>
           </div>
