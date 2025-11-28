@@ -17,37 +17,67 @@ export type Database = {
       companies: {
         Row: {
           address: string | null
+          bairro: string | null
+          cep: string | null
+          cidade: string | null
           cnpj: string
+          complemento: string | null
           created_at: string
           email: string
+          estado: string | null
           id: string
           logo_url: string | null
+          logradouro: string | null
           name: string
+          nome_comercial: string | null
+          numero: string | null
           phone: string | null
+          razao_social: string | null
+          responsavel_legal: string | null
           status: string
           updated_at: string
         }
         Insert: {
           address?: string | null
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
           cnpj: string
+          complemento?: string | null
           created_at?: string
           email: string
+          estado?: string | null
           id?: string
           logo_url?: string | null
+          logradouro?: string | null
           name: string
+          nome_comercial?: string | null
+          numero?: string | null
           phone?: string | null
+          razao_social?: string | null
+          responsavel_legal?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
           address?: string | null
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
           cnpj?: string
+          complemento?: string | null
           created_at?: string
           email?: string
+          estado?: string | null
           id?: string
           logo_url?: string | null
+          logradouro?: string | null
           name?: string
+          nome_comercial?: string | null
+          numero?: string | null
           phone?: string | null
+          razao_social?: string | null
+          responsavel_legal?: string | null
           status?: string
           updated_at?: string
         }
@@ -433,6 +463,84 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      terrenos: {
+        Row: {
+          area: number
+          bairro: string | null
+          cep: string | null
+          cidade: string | null
+          complemento: string | null
+          created_at: string
+          estado: string | null
+          grupo_economico_id: string
+          id: string
+          latitude: number | null
+          logradouro: string | null
+          longitude: number | null
+          matricula: string | null
+          nome: string
+          numero: string | null
+          project_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          area: number
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
+          created_at?: string
+          estado?: string | null
+          grupo_economico_id: string
+          id?: string
+          latitude?: number | null
+          logradouro?: string | null
+          longitude?: number | null
+          matricula?: string | null
+          nome: string
+          numero?: string | null
+          project_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          area?: number
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
+          created_at?: string
+          estado?: string | null
+          grupo_economico_id?: string
+          id?: string
+          latitude?: number | null
+          logradouro?: string | null
+          longitude?: number | null
+          matricula?: string | null
+          nome?: string
+          numero?: string | null
+          project_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "terrenos_grupo_economico_id_fkey"
+            columns: ["grupo_economico_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "terrenos_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
