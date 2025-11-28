@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MapPin, Plus, Filter, Search } from "lucide-react";
+import { MapPin, Plus, Filter, Search, MoreVertical, Edit, Archive, FolderOpen } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -7,6 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { TerrenoForm } from "@/components/landbank/TerrenoForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -30,6 +37,8 @@ const LandBank = () => {
   const [terrenos, setTerrenos] = useState<any[]>([]);
   const [grupos, setGrupos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [terrenoToEdit, setTerrenoToEdit] = useState<any>(null);
+  const [terrenoToArchive, setTerrenoToArchive] = useState<any>(null);
 
   useEffect(() => {
     fetchTerrenos();
@@ -92,6 +101,65 @@ const LandBank = () => {
   const terrenosComLocalizacao = filteredTerrenos.filter(
     t => t.latitude && t.longitude
   );
+
+  const handleEditTerreno = (terreno: any) => {
+    setTerrenoToEdit(terreno);
+    setShowForm(true);
+  };
+
+  const handleArchiveTerreno = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('terrenos')
+        .update({ status: 'archived' })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success("Terreno arquivado com sucesso!");
+      fetchTerrenos();
+    } catch (error) {
+      console.error('Erro ao arquivar terreno:', error);
+      toast.error("Erro ao arquivar terreno");
+    }
+  };
+
+  const handleConvertToProject = async (terreno: any) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Criar projeto
+      const { data: project, error: projectError } = await supabase
+        .from('projects')
+        .insert({
+          name: terreno.nome,
+          address: `${terreno.logradouro || ''} ${terreno.numero || ''}, ${terreno.bairro || ''}, ${terreno.cidade || ''}-${terreno.estado || ''}`.trim(),
+          area: terreno.area,
+          status: 'viability',
+          company_id: terreno.grupo_economico_id,
+          created_by: user.id,
+        })
+        .select()
+        .single();
+
+      if (projectError) throw projectError;
+
+      // Vincular terreno ao projeto
+      const { error: updateError } = await supabase
+        .from('terrenos')
+        .update({ project_id: project.id })
+        .eq('id', terreno.id);
+
+      if (updateError) throw updateError;
+
+      toast.success("Terreno convertido em projeto com sucesso!");
+      fetchTerrenos();
+    } catch (error) {
+      console.error('Erro ao converter terreno:', error);
+      toast.error("Erro ao converter terreno em projeto");
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
@@ -198,7 +266,31 @@ const LandBank = () => {
                     <CardTitle className="text-lg mb-2">{terreno.nome}</CardTitle>
                     {getStatusBadge(terreno.status)}
                   </div>
-                  <MapPin className="h-5 w-5 text-primary" />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEditTerreno(terreno)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleConvertToProject(terreno)}>
+                        <FolderOpen className="mr-2 h-4 w-4" />
+                        Converter em Projeto
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={() => handleArchiveTerreno(terreno.id)}
+                        className="text-destructive"
+                      >
+                        <Archive className="mr-2 h-4 w-4" />
+                        Arquivar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -233,12 +325,6 @@ const LandBank = () => {
                     {terreno.grupo_economico?.nome_comercial || terreno.grupo_economico?.razao_social}
                   </p>
                 </div>
-
-                {terreno.status === "acquired" && (
-                  <Button variant="outline" className="w-full" size="sm">
-                    Converter em Empreendimento
-                  </Button>
-                )}
               </CardContent>
             </Card>
           ))}

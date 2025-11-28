@@ -36,7 +36,7 @@ const Layout = ({ children }: LayoutProps) => {
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Grupos Econômicos", href: "/grupos-economicos", icon: Building2 },
     { name: "LandBank", href: "/landbank", icon: MapPin },
-    { name: "Incorporação", href: "/projects", icon: Building2 },
+    { name: "Projetos", href: "/projects", icon: Building2 },
     { name: "CRM", href: "/crm", icon: Briefcase },
     { name: "Documentos", href: "/documents", icon: FileText },
     { name: "Usuários", href: "/users", icon: Users },
