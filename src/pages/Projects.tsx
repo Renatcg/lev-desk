@@ -156,7 +156,23 @@ const Projects = () => {
     if (!over) return;
 
     const activeProjectId = String(active.id);
-    const newStatus = String(over.id);
+    let newStatus = String(over.id);
+    
+    // Verificar se over.id é um stage válido
+    const validStageIds = stages.map(s => s.id);
+    
+    // Se não for um stage válido, pode ser que dropou sobre um card
+    // Nesse caso, precisamos encontrar o stage desse card
+    if (!validStageIds.includes(newStatus)) {
+      const targetProject = projects.find(p => p.id === newStatus);
+      if (targetProject) {
+        newStatus = targetProject.status;
+      } else {
+        // Se não encontrar, cancelar a operação
+        return;
+      }
+    }
+    
     const activeProject = projects.find(p => p.id === activeProjectId);
 
     if (activeProject && activeProject.status !== newStatus) {
