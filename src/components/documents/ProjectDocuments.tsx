@@ -5,9 +5,7 @@ import { CreateFolderDialog } from "./CreateFolderDialog";
 import { DocumentUploadDialog } from "./DocumentUploadDialog";
 import { useProjectFolders } from "@/hooks/useProjectFolders";
 import { useProjectDocuments, ProjectDocument } from "@/hooks/useProjectDocuments";
-import { Button } from "@/components/ui/button";
-import { SidebarClose, SidebarOpen } from "lucide-react";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { ResizablePanelGroup, ResizablePanel, CollapsibleResizableHandle } from "@/components/ui/resizable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -128,26 +126,6 @@ export const ProjectDocuments = ({ projectId, projectName }: ProjectDocumentsPro
       <ResizablePanelGroup direction="horizontal" className="flex-1">
         <ResizablePanel defaultSize={showPreview ? 60 : 100} minSize={30}>
           <div className="h-full overflow-auto p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-muted-foreground">Estrutura de Arquivos</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowPreview(!showPreview)}
-              >
-                {showPreview ? (
-                  <>
-                    <SidebarClose className="h-4 w-4 mr-2" />
-                    Ocultar Preview
-                  </>
-                ) : (
-                  <>
-                    <SidebarOpen className="h-4 w-4 mr-2" />
-                    Exibir Preview
-                  </>
-                )}
-              </Button>
-            </div>
             <FileExplorerTree
               folders={folders}
               documents={documents}
@@ -167,10 +145,13 @@ export const ProjectDocuments = ({ projectId, projectName }: ProjectDocumentsPro
           </div>
         </ResizablePanel>
 
+        <CollapsibleResizableHandle 
+          collapsed={!showPreview}
+          onToggleCollapse={() => setShowPreview(!showPreview)}
+        />
+
         {showPreview && (
-          <>
-            <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={40} minSize={20} maxSize={70}>
+          <ResizablePanel defaultSize={40} minSize={20} maxSize={70}>
               <DocumentPreview
                 document={selectedDocument}
                 documentUrl={documentUrl}
@@ -179,7 +160,6 @@ export const ProjectDocuments = ({ projectId, projectName }: ProjectDocumentsPro
                 onMaximize={setFullscreenDocument}
               />
             </ResizablePanel>
-          </>
         )}
       </ResizablePanelGroup>
 
