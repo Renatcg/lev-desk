@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import LandBank from "./pages/LandBank";
 import GruposEconomicos from "./pages/GruposEconomicos";
 import Projects from "./pages/Projects";
+import ProjectDetails from "./pages/ProjectDetails";
 import MediaPlan from "./pages/MediaPlan";
 import MediaPlanFullscreen from "./pages/MediaPlanFullscreen";
 import Documents from "./pages/Documents";
@@ -70,6 +71,16 @@ const App = () => {
                 <ProtectedRoute>
                   <Layout>
                     <Projects />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/projects/:id"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ProjectDetails />
                   </Layout>
                 </ProtectedRoute>
               }
