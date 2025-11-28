@@ -5,6 +5,7 @@ import { CreateFolderDialog } from "./CreateFolderDialog";
 import { DocumentUploadDialog } from "./DocumentUploadDialog";
 import { useProjectFolders } from "@/hooks/useProjectFolders";
 import { useProjectDocuments, ProjectDocument } from "@/hooks/useProjectDocuments";
+import { useDocumentUrls } from "@/hooks/useDocumentUrls";
 import { ResizablePanelGroup, ResizablePanel, CollapsibleResizableHandle } from "@/components/ui/resizable";
 import {
   AlertDialog,
@@ -36,15 +37,8 @@ export const ProjectDocuments = ({ projectId, projectName }: ProjectDocumentsPro
   const [newFolderId, setNewFolderId] = useState<string | null>(null);
 
   const { folders, createFolder, updateFolder, deleteFolder } = useProjectFolders(projectId);
-  const { documents, uploadDocument, updateDocument, deleteDocument, getDocumentUrl, downloadDocument } = useProjectDocuments(projectId);
-
-  useEffect(() => {
-    if (selectedDocument) {
-      getDocumentUrl(selectedDocument).then(setDocumentUrl);
-    } else {
-      setDocumentUrl(null);
-    }
-  }, [selectedDocument?.id]);
+  const { documents, uploadDocument, updateDocument, deleteDocument, downloadDocument } = useProjectDocuments(projectId);
+  const { getDocumentUrl } = useDocumentUrls(documents);
 
   const handleCreateFolder = (parentId: string | null) => {
     setParentFolderId(parentId);
@@ -102,9 +96,12 @@ export const ProjectDocuments = ({ projectId, projectName }: ProjectDocumentsPro
     setItemToDelete(null);
   };
 
-  const handleDocumentSelect = (document: ProjectDocument) => {
+  const handleDocumentSelect = async (document: ProjectDocument) => {
     setSelectedDocument(document);
     if (!showPreview) setShowPreview(true);
+    // URL vem do cache, praticamente instantâneo
+    const url = await getDocumentUrl(document);
+    setDocumentUrl(url);
   };
 
   const handleUploadDocument = (file: File, description?: string) => {

@@ -22,8 +22,11 @@ export const DocumentPreview = ({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-  }, [document?.id]);
+    // Só mostra loading se não tiver URL ainda
+    if (!documentUrl) {
+      setIsLoading(true);
+    }
+  }, [document?.id, documentUrl]);
 
   if (!document) {
     return (
