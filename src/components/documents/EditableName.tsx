@@ -60,7 +60,7 @@ export const EditableName = ({ value, onSave, className, startInEditMode = false
 
   return (
     <span
-      onClick={() => setIsEditing(true)}
+      onDoubleClick={() => setIsEditing(true)}
       className={cn(
         "cursor-pointer hover:bg-accent/50 rounded px-1 transition-colors",
         className
