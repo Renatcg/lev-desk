@@ -15,6 +15,9 @@ import MediaPlan from "./pages/MediaPlan";
 import MediaPlanFullscreen from "./pages/MediaPlanFullscreen";
 import Documents from "./pages/Documents";
 import Settings from "./pages/Settings";
+import Contracts from "./pages/Contracts";
+import Financial from "./pages/Financial";
+import Automations from "./pages/Automations";
 import Layout from "./components/Layout";
 import NotFound from "./pages/NotFound";
 import { useFavicon } from "./hooks/useFavicon";
@@ -140,11 +143,41 @@ const App = () => {
               }
             />
             <Route
-              path="/settings"
+              path="/settings/layout"
               element={
                 <ProtectedRoute>
                   <Layout>
                     <Settings />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/contracts"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Contracts />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/financial"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Financial />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings/automations"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Automations />
                   </Layout>
                 </ProtectedRoute>
               }
