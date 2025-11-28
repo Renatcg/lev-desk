@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CEPLookup } from "./CEPLookup";
-import { LocationPicker } from "./LocationPicker";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -306,16 +305,6 @@ export const TerrenoForm = ({ open, onOpenChange, onSuccess, defaultGrupoId }: T
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="border-t pt-4">
-              <h3 className="font-semibold mb-4">Geolocalização</h3>
-              <LocationPicker
-                latitude={formData.latitude}
-                longitude={formData.longitude}
-                onLocationChange={handleLocationChange}
-                isOpen={open}
-              />
             </div>
           </div>
 
