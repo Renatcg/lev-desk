@@ -117,13 +117,10 @@ const ProjectDetails = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold text-foreground">{project.name}</h1>
               <Badge className={statusInfo.color}>{statusInfo.label}</Badge>
             </div>
-            <p className="text-muted-foreground">
-              {project.companies?.nome_comercial || project.companies?.razao_social || 'Sem empresa'}
-            </p>
           </div>
         </div>
         <Button onClick={() => setShowEditForm(true)}>

@@ -19,11 +19,17 @@ export interface ProjectDocument {
 }
 
 const sanitizeFileName = (fileName: string): string => {
-  return fileName
+  const lastDotIndex = fileName.lastIndexOf('.');
+  const name = lastDotIndex > 0 ? fileName.substring(0, lastDotIndex) : fileName;
+  const extension = lastDotIndex > 0 ? fileName.substring(lastDotIndex) : '';
+  
+  const sanitizedName = name
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '') // Remove acentos
     .replace(/\s+/g, '_') // Espaços → underscores
-    .replace(/[^a-zA-Z0-9._-]/g, ''); // Remove caracteres especiais
+    .replace(/[^a-zA-Z0-9_-]/g, ''); // Remove caracteres especiais
+  
+  return sanitizedName + extension;
 };
 
 export const useProjectDocuments = (projectId: string) => {
