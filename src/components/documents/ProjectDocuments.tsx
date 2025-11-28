@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
-import { FolderTree } from "./FolderTree";
-import { DocumentList } from "./DocumentList";
+import { FileExplorerTree } from "./FileExplorerTree";
 import { DocumentPreview } from "./DocumentPreview";
 import { CreateFolderDialog } from "./CreateFolderDialog";
 import { DocumentUploadDialog } from "./DocumentUploadDialog";
-import { useProjectFolders, ProjectFolder } from "@/hooks/useProjectFolders";
+import { useProjectFolders } from "@/hooks/useProjectFolders";
 import { useProjectDocuments, ProjectDocument } from "@/hooks/useProjectDocuments";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FolderPlus, Upload, SidebarClose, SidebarOpen, Search } from "lucide-react";
+import { SidebarClose, SidebarOpen } from "lucide-react";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import {
   AlertDialog,
@@ -24,23 +22,23 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface ProjectDocumentsProps {
   projectId: string;
+  projectName: string;
 }
 
-export const ProjectDocuments = ({ projectId }: ProjectDocumentsProps) => {
-  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+export const ProjectDocuments = ({ projectId, projectName }: ProjectDocumentsProps) => {
   const [selectedDocument, setSelectedDocument] = useState<ProjectDocument | null>(null);
   const [documentUrl, setDocumentUrl] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(true);
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
   const [parentFolderId, setParentFolderId] = useState<string | null>(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [uploadFolderId, setUploadFolderId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<{ type: "folder" | "document"; id: string } | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<{ type: "folder" | "document"; id: string; data?: any } | null>(null);
   const [fullscreenDocument, setFullscreenDocument] = useState<ProjectDocument | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
 
-  const { folders, isLoading: foldersLoading, createFolder, deleteFolder } = useProjectFolders(projectId);
-  const { documents, isLoading: documentsLoading, uploadDocument, deleteDocument, getDocumentUrl, downloadDocument } = useProjectDocuments(projectId, selectedFolderId);
+  const { folders, createFolder, updateFolder, deleteFolder } = useProjectFolders(projectId);
+  const { documents, uploadDocument, updateDocument, deleteDocument, getDocumentUrl, downloadDocument } = useProjectDocuments(projectId);
 
   useEffect(() => {
     if (selectedDocument) {
@@ -63,13 +61,21 @@ export const ProjectDocuments = ({ projectId }: ProjectDocumentsProps) => {
     });
   };
 
+  const handleRenameFolder = (folderId: string, newName: string) => {
+    updateFolder.mutate({ id: folderId, updates: { name: newName } });
+  };
+
   const handleDeleteFolder = (folderId: string) => {
     setItemToDelete({ type: "folder", id: folderId });
     setDeleteDialogOpen(true);
   };
 
+  const handleRenameDocument = (documentId: string, newName: string) => {
+    updateDocument.mutate({ id: documentId, updates: { name: newName } });
+  };
+
   const handleDeleteDocument = (document: ProjectDocument) => {
-    setItemToDelete({ type: "document", id: document.id });
+    setItemToDelete({ type: "document", id: document.id, data: document });
     setDeleteDialogOpen(true);
   };
 
@@ -78,9 +84,8 @@ export const ProjectDocuments = ({ projectId }: ProjectDocumentsProps) => {
 
     if (itemToDelete.type === "folder") {
       deleteFolder.mutate(itemToDelete.id);
-    } else {
-      const doc = documents.find((d) => d.id === itemToDelete.id);
-      if (doc) deleteDocument.mutate(doc);
+    } else if (itemToDelete.data) {
+      deleteDocument.mutate(itemToDelete.data);
     }
 
     setDeleteDialogOpen(false);
@@ -95,76 +100,45 @@ export const ProjectDocuments = ({ projectId }: ProjectDocumentsProps) => {
   const handleUploadDocument = (file: File, description?: string) => {
     uploadDocument.mutate({
       file,
-      folderId: selectedFolderId,
+      folderId: uploadFolderId,
       description,
     });
     setUploadDialogOpen(false);
   };
 
-  const selectedFolder = folders.find((f) => f.id === selectedFolderId);
-
-  const filteredDocuments = searchQuery
-    ? documents.filter((doc) => doc.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    : documents;
+  const handleUploadClick = (folderId: string | null) => {
+    setUploadFolderId(folderId);
+    setUploadDialogOpen(true);
+  };
 
   return (
     <div className="h-[calc(100vh-200px)] flex flex-col">
-      <div className="flex items-center justify-between p-4 border-b">
-        <div className="flex items-center gap-4 flex-1">
-          <h2 className="text-lg font-semibold">Documentos do Projeto</h2>
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar documentos..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => handleCreateFolder(selectedFolderId)}>
-            <FolderPlus className="h-4 w-4 mr-2" />
-            Nova pasta
-          </Button>
-          <Button size="sm" onClick={() => setUploadDialogOpen(true)}>
-            <Upload className="h-4 w-4 mr-2" />
-            Upload
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowPreview(!showPreview)}
-          >
-            {showPreview ? <SidebarClose className="h-4 w-4" /> : <SidebarOpen className="h-4 w-4" />}
-          </Button>
-        </div>
+      <div className="flex items-center justify-end p-4 border-b">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowPreview(!showPreview)}
+        >
+          {showPreview ? <SidebarClose className="h-4 w-4" /> : <SidebarOpen className="h-4 w-4" />}
+        </Button>
       </div>
 
       <ResizablePanelGroup direction="horizontal" className="flex-1">
-        <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
+        <ResizablePanel defaultSize={showPreview ? 60 : 100} minSize={30}>
           <div className="h-full overflow-auto p-4">
-            <FolderTree
+            <FileExplorerTree
               folders={folders}
-              selectedFolderId={selectedFolderId}
-              onFolderSelect={setSelectedFolderId}
-              onCreateFolder={handleCreateFolder}
-              onRenameFolder={(folder) => {}}
-              onDeleteFolder={handleDeleteFolder}
-            />
-          </div>
-        </ResizablePanel>
-
-        <ResizableHandle withHandle />
-
-        <ResizablePanel defaultSize={showPreview ? 50 : 80}>
-          <div className="h-full overflow-auto">
-            <DocumentList
-              documents={filteredDocuments}
-              onDocumentSelect={handleDocumentSelect}
-              onDocumentDownload={downloadDocument}
-              onDocumentDelete={handleDeleteDocument}
+              documents={documents}
               selectedDocumentId={selectedDocument?.id || null}
+              onDocumentSelect={handleDocumentSelect}
+              onCreateFolder={handleCreateFolder}
+              onRenameFolder={handleRenameFolder}
+              onDeleteFolder={handleDeleteFolder}
+              onUploadDocument={handleUploadClick}
+              onRenameDocument={handleRenameDocument}
+              onDeleteDocument={handleDeleteDocument}
+              onDownloadDocument={downloadDocument}
+              rootName={`Docs ${projectName}`}
             />
           </div>
         </ResizablePanel>
@@ -172,7 +146,7 @@ export const ProjectDocuments = ({ projectId }: ProjectDocumentsProps) => {
         {showPreview && (
           <>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
+            <ResizablePanel defaultSize={40} minSize={20} maxSize={70}>
               <DocumentPreview
                 document={selectedDocument}
                 documentUrl={documentUrl}
@@ -189,7 +163,6 @@ export const ProjectDocuments = ({ projectId }: ProjectDocumentsProps) => {
         open={createFolderOpen}
         onOpenChange={setCreateFolderOpen}
         onCreateFolder={handleFolderCreated}
-        parentFolderName={selectedFolder?.name}
       />
 
       <DocumentUploadDialog

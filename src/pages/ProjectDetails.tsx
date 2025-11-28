@@ -304,7 +304,7 @@ const ProjectDetails = () => {
 
         {/* Documents Tab */}
         <TabsContent value="documents">
-          <ProjectDocuments projectId={id!} />
+          <ProjectDocuments projectId={id!} projectName={project.name} />
         </TabsContent>
 
         {/* History Tab */}

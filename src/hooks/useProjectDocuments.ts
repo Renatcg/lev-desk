@@ -18,24 +18,17 @@ export interface ProjectDocument {
   uploaded_by: string | null;
 }
 
-export const useProjectDocuments = (projectId: string, folderId?: string | null) => {
+export const useProjectDocuments = (projectId: string) => {
   const queryClient = useQueryClient();
 
   const { data: documents, isLoading } = useQuery({
-    queryKey: ["project-documents", projectId, folderId],
+    queryKey: ["project-documents", projectId],
     queryFn: async () => {
-      let query = supabase
+      const { data, error } = await supabase
         .from("project_documents")
         .select("*")
-        .eq("project_id", projectId);
-
-      if (folderId) {
-        query = query.eq("folder_id", folderId);
-      } else {
-        query = query.is("folder_id", null);
-      }
-
-      const { data, error } = await query.order("created_at", { ascending: false });
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data as ProjectDocument[];
@@ -88,6 +81,28 @@ export const useProjectDocuments = (projectId: string, folderId?: string | null)
     },
   });
 
+  const updateDocument = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Pick<ProjectDocument, "name" | "description">> }) => {
+      const { data, error } = await supabase
+        .from("project_documents")
+        .update(updates)
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["project-documents", projectId] });
+      toast.success("Documento atualizado com sucesso");
+    },
+    onError: (error) => {
+      console.error("Error updating document:", error);
+      toast.error("Erro ao atualizar documento");
+    },
+  });
+
   const deleteDocument = useMutation({
     mutationFn: async (document: ProjectDocument) => {
       const { error: storageError } = await supabase.storage
@@ -135,6 +150,7 @@ export const useProjectDocuments = (projectId: string, folderId?: string | null)
     documents: documents || [],
     isLoading,
     uploadDocument,
+    updateDocument,
     deleteDocument,
     getDocumentUrl,
     downloadDocument,
