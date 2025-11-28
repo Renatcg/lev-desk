@@ -29,6 +29,7 @@ export const DocumentUploadDialog = ({
   const [file, setFile] = useState<File | null>(null);
   const [description, setDescription] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -54,6 +55,10 @@ export const DocumentUploadDialog = ({
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
+      if (selectedFile.type.startsWith("image/") || selectedFile.type.startsWith("video/")) {
+        const url = URL.createObjectURL(selectedFile);
+        setPreviewUrl(url);
+      }
     }
   };
 
@@ -67,8 +72,12 @@ export const DocumentUploadDialog = ({
   };
 
   const handleCancel = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
     setFile(null);
     setDescription("");
+    setPreviewUrl(null);
     onOpenChange(false);
   };
 
@@ -92,7 +101,21 @@ export const DocumentUploadDialog = ({
               onDrop={handleDrop}
             >
               {file ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
+                  {previewUrl && file.type.startsWith("image/") && (
+                    <img 
+                      src={previewUrl} 
+                      className="max-h-48 mx-auto rounded object-contain"
+                      alt="Preview"
+                    />
+                  )}
+                  {previewUrl && file.type.startsWith("video/") && (
+                    <video 
+                      src={previewUrl} 
+                      className="max-h-48 mx-auto rounded"
+                      controls
+                    />
+                  )}
                   <p className="text-sm font-medium">{file.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {(file.size / 1024 / 1024).toFixed(2)} MB
@@ -101,7 +124,13 @@ export const DocumentUploadDialog = ({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => setFile(null)}
+                    onClick={() => {
+                      if (previewUrl) {
+                        URL.revokeObjectURL(previewUrl);
+                        setPreviewUrl(null);
+                      }
+                      setFile(null);
+                    }}
                   >
                     <X className="h-4 w-4 mr-2" />
                     Remover

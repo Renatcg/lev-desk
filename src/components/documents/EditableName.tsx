@@ -6,10 +6,12 @@ interface EditableNameProps {
   value: string;
   onSave: (newName: string) => void;
   className?: string;
+  startInEditMode?: boolean;
+  onCancel?: () => void;
 }
 
-export const EditableName = ({ value, onSave, className }: EditableNameProps) => {
-  const [isEditing, setIsEditing] = useState(false);
+export const EditableName = ({ value, onSave, className, startInEditMode = false, onCancel }: EditableNameProps) => {
+  const [isEditing, setIsEditing] = useState(startInEditMode);
   const [editValue, setEditValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -32,6 +34,7 @@ export const EditableName = ({ value, onSave, className }: EditableNameProps) =>
   const handleCancel = () => {
     setIsEditing(false);
     setEditValue(value);
+    onCancel?.();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

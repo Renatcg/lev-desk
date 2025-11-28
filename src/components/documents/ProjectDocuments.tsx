@@ -29,13 +29,13 @@ export const ProjectDocuments = ({ projectId, projectName }: ProjectDocumentsPro
   const [selectedDocument, setSelectedDocument] = useState<ProjectDocument | null>(null);
   const [documentUrl, setDocumentUrl] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(true);
-  const [createFolderOpen, setCreateFolderOpen] = useState(false);
   const [parentFolderId, setParentFolderId] = useState<string | null>(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [uploadFolderId, setUploadFolderId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ type: "folder" | "document"; id: string; data?: any } | null>(null);
   const [fullscreenDocument, setFullscreenDocument] = useState<ProjectDocument | null>(null);
+  const [newFolderId, setNewFolderId] = useState<string | null>(null);
 
   const { folders, createFolder, updateFolder, deleteFolder } = useProjectFolders(projectId);
   const { documents, uploadDocument, updateDocument, deleteDocument, getDocumentUrl, downloadDocument } = useProjectDocuments(projectId);
@@ -50,19 +50,31 @@ export const ProjectDocuments = ({ projectId, projectName }: ProjectDocumentsPro
 
   const handleCreateFolder = (parentId: string | null) => {
     setParentFolderId(parentId);
-    setCreateFolderOpen(true);
+    createFolder.mutate(
+      {
+        name: "Nova Pasta",
+        parent_folder_id: parentId,
+      },
+      {
+        onSuccess: (data) => {
+          setNewFolderId(data.id);
+        },
+      }
+    );
   };
 
-  const handleFolderCreated = (name: string, description?: string) => {
-    createFolder.mutate({
-      name,
-      description,
-      parent_folder_id: parentFolderId,
-    });
+  const handleCancelNewFolder = () => {
+    if (newFolderId) {
+      deleteFolder.mutate(newFolderId);
+      setNewFolderId(null);
+    }
   };
 
   const handleRenameFolder = (folderId: string, newName: string) => {
     updateFolder.mutate({ id: folderId, updates: { name: newName } });
+    if (folderId === newFolderId) {
+      setNewFolderId(null);
+    }
   };
 
   const handleDeleteFolder = (folderId: string) => {
@@ -139,6 +151,8 @@ export const ProjectDocuments = ({ projectId, projectName }: ProjectDocumentsPro
               onDeleteDocument={handleDeleteDocument}
               onDownloadDocument={downloadDocument}
               rootName={`Docs ${projectName}`}
+              newFolderId={newFolderId}
+              onCancelNewFolder={handleCancelNewFolder}
             />
           </div>
         </ResizablePanel>
@@ -158,12 +172,6 @@ export const ProjectDocuments = ({ projectId, projectName }: ProjectDocumentsPro
           </>
         )}
       </ResizablePanelGroup>
-
-      <CreateFolderDialog
-        open={createFolderOpen}
-        onOpenChange={setCreateFolderOpen}
-        onCreateFolder={handleFolderCreated}
-      />
 
       <DocumentUploadDialog
         open={uploadDialogOpen}
