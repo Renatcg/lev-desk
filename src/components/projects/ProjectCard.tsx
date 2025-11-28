@@ -40,13 +40,19 @@ export const ProjectCard = ({ project, onEdit }: ProjectCardProps) => {
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
-      className="cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow touch-none"
+      className="cursor-pointer hover:shadow-md transition-shadow"
+      onClick={() => navigate(`/projects/${project.id}`)}
     >
       <CardHeader className="p-4">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-2 flex-1">
-            <GripVertical className="h-4 w-4 text-muted-foreground mt-1 flex-shrink-0" />
+            <div 
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing touch-none"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <GripVertical className="h-4 w-4 text-muted-foreground mt-1 flex-shrink-0" />
+            </div>
             <div className="flex-1">
               <h4 className="font-semibold text-sm mb-1">
                 {project.name}
@@ -62,7 +68,7 @@ export const ProjectCard = ({ project, onEdit }: ProjectCardProps) => {
                 variant="ghost" 
                 size="icon" 
                 className="h-6 w-6"
-                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
               >
                 <MoreVertical className="h-3 w-3" />
               </Button>
