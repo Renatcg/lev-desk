@@ -124,20 +124,30 @@ export const ProjectDocuments = ({ projectId, projectName }: ProjectDocumentsPro
   };
 
   return (
-    <div className="h-[calc(100vh-200px)] flex flex-col">
-      <div className="flex items-center justify-end p-4 border-b">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setShowPreview(!showPreview)}
-        >
-          {showPreview ? <SidebarClose className="h-4 w-4" /> : <SidebarOpen className="h-4 w-4" />}
-        </Button>
-      </div>
-
+    <div className="h-[calc(100vh-200px)] flex flex-col relative">
       <ResizablePanelGroup direction="horizontal" className="flex-1">
         <ResizablePanel defaultSize={showPreview ? 60 : 100} minSize={30}>
           <div className="h-full overflow-auto p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-medium text-muted-foreground">Estrutura de Arquivos</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPreview(!showPreview)}
+              >
+                {showPreview ? (
+                  <>
+                    <SidebarClose className="h-4 w-4 mr-2" />
+                    Ocultar Preview
+                  </>
+                ) : (
+                  <>
+                    <SidebarOpen className="h-4 w-4 mr-2" />
+                    Exibir Preview
+                  </>
+                )}
+              </Button>
+            </div>
             <FileExplorerTree
               folders={folders}
               documents={documents}
