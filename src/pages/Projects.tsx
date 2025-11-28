@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, MoreVertical, Sparkles, Calendar, TrendingUp } from "lucide-react";
+import { Plus, MoreVertical, Sparkles, Calendar, TrendingUp, Edit } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,12 +13,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AIProjectAssistant } from "@/components/AIProjectAssistant";
+import { ProjectForm } from "@/components/projects/ProjectForm";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const Projects = () => {
   const navigate = useNavigate();
   const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [showProjectForm, setShowProjectForm] = useState(false);
+  const [projectToEdit, setProjectToEdit] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -95,7 +98,6 @@ const Projects = () => {
         description: `${data.name} foi adicionado ao pipeline.`
       });
       
-      // Recarregar projetos
       loadProjects();
     } catch (error: any) {
       console.error('Error creating project:', error);
@@ -105,6 +107,16 @@ const Projects = () => {
         variant: 'destructive'
       });
     }
+  };
+
+  const handleEditProject = (project: any) => {
+    setProjectToEdit(project);
+    setShowProjectForm(true);
+  };
+
+  const handleNewProject = () => {
+    setProjectToEdit(null);
+    setShowProjectForm(true);
   };
 
   return (
@@ -123,7 +135,7 @@ const Projects = () => {
             <Sparkles className="mr-2 h-4 w-4" />
             Cadastrar com IA
           </Button>
-          <Button className="bg-primary hover:bg-primary/90">
+          <Button onClick={handleNewProject} className="bg-primary hover:bg-primary/90">
             <Plus className="mr-2 h-4 w-4" />
             Novo Empreendimento
           </Button>
@@ -134,6 +146,16 @@ const Projects = () => {
         open={showAIAssistant}
         onOpenChange={setShowAIAssistant}
         onProjectExtracted={handleProjectExtracted}
+      />
+
+      <ProjectForm
+        open={showProjectForm}
+        onOpenChange={(open) => {
+          setShowProjectForm(open);
+          if (!open) setProjectToEdit(null);
+        }}
+        onSuccess={loadProjects}
+        projectToEdit={projectToEdit}
       />
 
       {/* Kanban Board */}
@@ -196,7 +218,10 @@ const Projects = () => {
                                 Plano de Mídia
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem>Editar</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleEditProject(project)}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Editar
+                              </DropdownMenuItem>
                               <DropdownMenuItem className="text-destructive">
                                 Arquivar
                               </DropdownMenuItem>
