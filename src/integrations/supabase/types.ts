@@ -83,6 +83,101 @@ export type Database = {
         }
         Relationships: []
       }
+      document_access_logs: {
+        Row: {
+          accessed_at: string
+          action_type: string
+          document_id: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          accessed_at?: string
+          action_type: string
+          document_id: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          accessed_at?: string
+          action_type?: string
+          document_id?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_access_logs_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "project_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_permissions: {
+        Row: {
+          can_download: boolean | null
+          can_share: boolean | null
+          can_view: boolean | null
+          created_at: string
+          document_id: string | null
+          expires_at: string | null
+          folder_id: string | null
+          granted_by: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          can_download?: boolean | null
+          can_share?: boolean | null
+          can_view?: boolean | null
+          created_at?: string
+          document_id?: string | null
+          expires_at?: string | null
+          folder_id?: string | null
+          granted_by?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          can_download?: boolean | null
+          can_share?: boolean | null
+          can_view?: boolean | null
+          created_at?: string
+          document_id?: string | null
+          expires_at?: string | null
+          folder_id?: string | null
+          granted_by?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_permissions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "project_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_permissions_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "project_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           bucket_name: string
@@ -355,6 +450,120 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_documents: {
+        Row: {
+          bucket_name: string
+          created_at: string
+          description: string | null
+          file_path: string
+          folder_id: string | null
+          id: string
+          metadata: Json | null
+          mime_type: string
+          name: string
+          project_id: string
+          size: number | null
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          bucket_name?: string
+          created_at?: string
+          description?: string | null
+          file_path: string
+          folder_id?: string | null
+          id?: string
+          metadata?: Json | null
+          mime_type: string
+          name: string
+          project_id: string
+          size?: number | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          bucket_name?: string
+          created_at?: string
+          description?: string | null
+          file_path?: string
+          folder_id?: string | null
+          id?: string
+          metadata?: Json | null
+          mime_type?: string
+          name?: string
+          project_id?: string
+          size?: number | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_documents_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "project_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_folders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          order_index: number | null
+          parent_folder_id: string | null
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          order_index?: number | null
+          parent_folder_id?: string | null
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          order_index?: number | null
+          parent_folder_id?: string | null
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_folders_parent_folder_id_fkey"
+            columns: ["parent_folder_id"]
+            isOneToOne: false
+            referencedRelation: "project_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_folders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
