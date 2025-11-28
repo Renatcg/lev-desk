@@ -177,6 +177,7 @@ export const TerrenoForm = ({ open, onOpenChange, onSuccess, defaultGrupoId }: T
                 value={formData.grupo_economico_id}
                 onValueChange={(value) => setFormData(prev => ({ ...prev, grupo_economico_id: value }))}
                 required
+                disabled={!!defaultGrupoId}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o grupo econômico" />
