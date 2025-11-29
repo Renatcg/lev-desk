@@ -48,6 +48,8 @@ export const DocumentPreview = ({
 
     const isImage = document.mime_type.startsWith("image/");
     const isPdf = document.mime_type.includes("pdf");
+    const isVideo = document.mime_type.startsWith("video/");
+    const isAudio = document.mime_type.startsWith("audio/");
 
     if (isImage) {
       return (
@@ -68,6 +70,34 @@ export const DocumentPreview = ({
           title={document.name}
           onLoad={() => setIsLoading(false)}
         />
+      );
+    }
+
+    if (isVideo) {
+      return (
+        <video
+          src={documentUrl}
+          controls
+          className="w-full h-full"
+          onLoadedData={() => setIsLoading(false)}
+        >
+          Seu navegador não suporta reprodução de vídeo.
+        </video>
+      );
+    }
+
+    if (isAudio) {
+      return (
+        <div className="flex items-center justify-center h-full p-8">
+          <audio
+            src={documentUrl}
+            controls
+            className="w-full max-w-md"
+            onLoadedData={() => setIsLoading(false)}
+          >
+            Seu navegador não suporta reprodução de áudio.
+          </audio>
+        </div>
       );
     }
 
