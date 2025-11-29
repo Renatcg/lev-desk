@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ProjectForm } from "@/components/projects/ProjectForm";
 import { ProjectDocuments } from "@/components/documents/ProjectDocuments";
+import { ProjectTeam } from "@/components/projects/ProjectTeam";
 
 const ProjectDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -135,6 +136,7 @@ const ProjectDetails = () => {
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
           <TabsTrigger value="terrenos">Terrenos ({terrenos.length})</TabsTrigger>
           <TabsTrigger value="documents">Documentos</TabsTrigger>
+          <TabsTrigger value="team">Equipe</TabsTrigger>
           <TabsTrigger value="history">Histórico</TabsTrigger>
         </TabsList>
 
@@ -302,6 +304,11 @@ const ProjectDetails = () => {
         {/* Documents Tab */}
         <TabsContent value="documents">
           <ProjectDocuments projectId={id!} projectName={project.name} />
+        </TabsContent>
+
+        {/* Team Tab */}
+        <TabsContent value="team">
+          <ProjectTeam projectId={id!} projectName={project.name} />
         </TabsContent>
 
         {/* History Tab */}

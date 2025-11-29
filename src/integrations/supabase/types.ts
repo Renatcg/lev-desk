@@ -568,6 +568,100 @@ export type Database = {
           },
         ]
       }
+      project_members: {
+        Row: {
+          cargo: string | null
+          created_at: string | null
+          custom_permissions: Json | null
+          id: string
+          invite_expires_at: string | null
+          invite_token: string | null
+          invited_at: string | null
+          profile_id: string
+          project_id: string
+          updated_at: string | null
+          user_id: string
+          whatsapp: string | null
+        }
+        Insert: {
+          cargo?: string | null
+          created_at?: string | null
+          custom_permissions?: Json | null
+          id?: string
+          invite_expires_at?: string | null
+          invite_token?: string | null
+          invited_at?: string | null
+          profile_id: string
+          project_id: string
+          updated_at?: string | null
+          user_id: string
+          whatsapp?: string | null
+        }
+        Update: {
+          cargo?: string | null
+          created_at?: string | null
+          custom_permissions?: Json | null
+          id?: string
+          invite_expires_at?: string | null
+          invite_token?: string | null
+          invited_at?: string | null
+          profile_id?: string
+          project_id?: string
+          updated_at?: string | null
+          user_id?: string
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "project_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_profiles: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          permissions: Json
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          permissions?: Json
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          permissions?: Json
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           address: string | null
@@ -778,6 +872,15 @@ export type Database = {
     }
     Functions: {
       get_user_company_id: { Args: { user_id: string }; Returns: string }
+      has_project_permission: {
+        Args: {
+          _action: string
+          _module: string
+          _project_id: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

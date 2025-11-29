@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSystemSettings } from "@/hooks/useSystemSettings";
 import levLogo from "@/assets/lev-logo.png";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 // Validation schemas
 const loginSchema = z.object({
@@ -85,11 +86,26 @@ const Login = () => {
           });
         }
       } else {
-        toast({
-          title: "Login realizado!",
-          description: "Bem-vindo ao sistema LEV.",
-        });
-        navigate("/dashboard");
+        // Check if user needs to change password
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("must_change_password")
+          .eq("email", loginEmail)
+          .single();
+
+        if (profile?.must_change_password) {
+          toast({
+            title: "Altere sua senha",
+            description: "Por segurança, você precisa alterar sua senha.",
+          });
+          navigate("/change-password");
+        } else {
+          toast({
+            title: "Login realizado!",
+            description: "Bem-vindo ao sistema LEV.",
+          });
+          navigate("/dashboard");
+        }
       }
     } catch (error: any) {
       toast({
