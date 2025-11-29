@@ -50,6 +50,9 @@ export const DocumentPreview = ({
     const isPdf = document.mime_type.includes("pdf");
     const isVideo = document.mime_type.startsWith("video/");
     const isAudio = document.mime_type.startsWith("audio/");
+    const isOfficeDoc = document.mime_type.includes("wordprocessingml") || 
+                        document.mime_type.includes("spreadsheetml") || 
+                        document.mime_type.includes("presentationml");
 
     if (isImage) {
       return (
@@ -98,6 +101,18 @@ export const DocumentPreview = ({
             Seu navegador não suporta reprodução de áudio.
           </audio>
         </div>
+      );
+    }
+
+    if (isOfficeDoc) {
+      const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(documentUrl)}&embedded=true`;
+      return (
+        <iframe
+          src={viewerUrl}
+          className="w-full h-full border-0"
+          title={document.name}
+          onLoad={() => setIsLoading(false)}
+        />
       );
     }
 
