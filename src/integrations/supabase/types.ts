@@ -872,6 +872,7 @@ export type Database = {
     }
     Functions: {
       get_user_company_id: { Args: { user_id: string }; Returns: string }
+      get_user_project_ids: { Args: { _user_id: string }; Returns: string[] }
       has_project_permission: {
         Args: {
           _action: string
