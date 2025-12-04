@@ -15,9 +15,10 @@ import { CSS } from "@dnd-kit/utilities";
 interface ProjectCardProps {
   project: any;
   onEdit: (project: any) => void;
+  onArchive: (project: any) => void;
 }
 
-export const ProjectCard = ({ project, onEdit }: ProjectCardProps) => {
+export const ProjectCard = ({ project, onEdit, onArchive }: ProjectCardProps) => {
   const navigate = useNavigate();
   
   const {
@@ -91,7 +92,13 @@ export const ProjectCard = ({ project, onEdit }: ProjectCardProps) => {
                 <Edit className="mr-2 h-4 w-4" />
                 Editar
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">
+              <DropdownMenuItem 
+                className="text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onArchive(project);
+                }}
+              >
                 Arquivar
               </DropdownMenuItem>
             </DropdownMenuContent>
