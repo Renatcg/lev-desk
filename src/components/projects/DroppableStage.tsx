@@ -12,9 +12,10 @@ interface DroppableStageProps {
   projects: any[];
   loading: boolean;
   onEdit: (project: any) => void;
+  onArchive: (project: any) => void;
 }
 
-export const DroppableStage = ({ stage, projects, loading, onEdit }: DroppableStageProps) => {
+export const DroppableStage = ({ stage, projects, loading, onEdit, onArchive }: DroppableStageProps) => {
   const { setNodeRef, isOver } = useDroppable({
     id: stage.id,
   });
@@ -56,6 +57,7 @@ export const DroppableStage = ({ stage, projects, loading, onEdit }: DroppableSt
                   key={project.id}
                   project={project}
                   onEdit={onEdit}
+                  onArchive={onArchive}
                 />
               ))
             ) : (

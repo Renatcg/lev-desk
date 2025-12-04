@@ -145,6 +145,31 @@ const Projects = () => {
     setShowProjectForm(true);
   };
 
+  const handleArchiveProject = async (project: any) => {
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .update({ status: 'archived' })
+        .eq('id', project.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Projeto arquivado',
+        description: `${project.name} foi arquivado com sucesso.`,
+      });
+
+      loadProjects();
+    } catch (error) {
+      console.error('Erro ao arquivar projeto:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível arquivar o projeto',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
   };
@@ -268,6 +293,7 @@ const Projects = () => {
               projects={projectsByStage[stage.id] || []}
               loading={loading}
               onEdit={handleEditProject}
+              onArchive={handleArchiveProject}
             />
           ))}
         </div>
