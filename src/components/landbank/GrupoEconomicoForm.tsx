@@ -125,7 +125,7 @@ export const GrupoEconomicoForm = ({ open, onOpenChange, onSuccess, grupoToEdit 
 
     setLoading(true);
     try {
-      const { error } = await supabase.from('companies').insert([{
+      const dataToSave = {
         name: formData.nome_comercial,
         razao_social: formData.razao_social,
         nome_comercial: formData.nome_comercial,
@@ -141,11 +141,28 @@ export const GrupoEconomicoForm = ({ open, onOpenChange, onSuccess, grupoToEdit 
         cidade: formData.cidade,
         estado: formData.estado,
         status: 'active',
-      }]);
+      };
+
+      let error;
+
+      if (grupoToEdit?.id) {
+        // UPDATE existing record
+        const result = await supabase
+          .from('companies')
+          .update(dataToSave)
+          .eq('id', grupoToEdit.id);
+        error = result.error;
+      } else {
+        // INSERT new record
+        const result = await supabase
+          .from('companies')
+          .insert([dataToSave]);
+        error = result.error;
+      }
 
       if (error) throw error;
 
-      toast.success("Grupo econômico cadastrado com sucesso!");
+      toast.success(grupoToEdit ? "Grupo econômico atualizado com sucesso!" : "Grupo econômico cadastrado com sucesso!");
       onSuccess();
       onOpenChange(false);
       setFormData({
@@ -164,8 +181,8 @@ export const GrupoEconomicoForm = ({ open, onOpenChange, onSuccess, grupoToEdit 
         estado: "",
       });
     } catch (error) {
-      console.error('Erro ao criar grupo econômico:', error);
-      toast.error("Erro ao criar grupo econômico");
+      console.error('Erro ao salvar grupo econômico:', error);
+      toast.error(grupoToEdit ? "Erro ao atualizar grupo econômico" : "Erro ao criar grupo econômico");
     } finally {
       setLoading(false);
     }
