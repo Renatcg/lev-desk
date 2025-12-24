@@ -95,7 +95,7 @@ const ContasReceberForm = ({ onSuccess }: ContasReceberFormProps) => {
     };
 
     fetchGrupos();
-  }, [toast];}
+  }, [toast]);
 
   // Carregar projetos quando grupo for selecionado
   useEffect(() => {
