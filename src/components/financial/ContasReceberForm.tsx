@@ -67,24 +67,35 @@ const ContasReceberForm = ({ onSuccess }: ContasReceberFormProps) => {
   // Carregar grupos econômicos
   useEffect(() => {
     const fetchGrupos = async () => {
-      const { data, error } = await supabase
-        .from("grupos_economicos")
-        .select("id, nome")
-        .order("nome");
+      try {
+        const { data, error } = await supabase
+          .from("grupos_economicos")
+          .select("id, nome")
+          .order("nome");
 
-      if (error) {
+        if (error) {
+          console.error("Erro ao carregar grupos:", error);
+          toast({
+            title: "Erro",
+            description: `Erro ao carregar grupos econômicos: ${error.message}`,
+            variant: "destructive",
+          });
+        } else {
+          console.log("Grupos carregados:", data);
+          setGrupos(data || []);
+        }
+      } catch (err) {
+        console.error("Erro na requisição:", err);
         toast({
           title: "Erro",
           description: "Erro ao carregar grupos econômicos",
           variant: "destructive",
         });
-      } else {
-        setGrupos(data || []);
       }
     };
 
     fetchGrupos();
-  }, []);
+  }, [toast];}
 
   // Carregar projetos quando grupo for selecionado
   useEffect(() => {
