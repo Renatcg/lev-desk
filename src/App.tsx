@@ -34,7 +34,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter basename="/lev-desk">
+        <BrowserRouter>
           <AuthProvider>
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
