@@ -77,10 +77,7 @@ const ContasReceberList = ({ refreshTrigger }: ContasReceberListProps) => {
     try {
       const { data, error } = await supabase
         .from("contas_receber")
-        .select(`
-          *,
-          projects (name)
-        `)
+        .select("*")
         .order("data_cobranca", { ascending: true });
 
       if (error) throw error;
