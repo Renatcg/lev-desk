@@ -18,6 +18,7 @@ import Documents from "./pages/Documents";
 import Settings from "./pages/Settings";
 import Contracts from "./pages/Contracts";
 import Financial from "./pages/Financial";
+import Conciliacao from "./pages/Conciliacao";
 import Automations from "./pages/Automations";
 import Layout from "./components/Layout";
 import NotFound from "./pages/NotFound";
@@ -177,6 +178,16 @@ const App = () => {
                 <ProtectedRoute>
                   <Layout>
                     <Financial />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/conciliacao"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Conciliacao />
                   </Layout>
                 </ProtectedRoute>
               }

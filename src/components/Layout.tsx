@@ -57,6 +57,7 @@ const Layout = ({ children }: LayoutProps) => {
       children: [
         { name: "Contratos", href: "/contracts", icon: FileText },
         { name: "Financeiro", href: "/financial", icon: DollarSign },
+        { name: "Conciliação Bancária", href: "/conciliacao", icon: DollarSign },
       ]
     },
     { 
