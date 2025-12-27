@@ -4,11 +4,14 @@
     <meta charset="utf-8">
     <title>LEV - Sistema de Gestão de Incorporação Imobiliária</title>
     <script type="text/javascript">
-      // Redirecionar para index.html mantendo a rota
+      // Redirecionar para index.html mantendo a rota para SPA
+      var segmentCount = 0;
       var l = window.location;
       l.replace(
         l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-        '/lev-desk/index.html'
+        '/lev-desk/index.html?p=' + l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
       );
     </script>
   </head>
