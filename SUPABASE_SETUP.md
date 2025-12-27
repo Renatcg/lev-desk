@@ -117,19 +117,23 @@ CREATE INDEX idx_contas_pagar_status ON contas_pagar(status);
 
 ---
 
-## FASE 3: Campos Adicionais para Concialiação (Próximos)
+## FASE 3: Campos Adicionais para Conciliação Bancária
 
-Quando implementar a página de conciliação, execute:
+Execute este SQL para adicionar campos necessários para o registro de pagamentos:
 
 ```sql
 ALTER TABLE contas_receber ADD COLUMN IF NOT EXISTS data_pagamento DATE;
-ALTER TABLE contas_receber ADD COLUMN IF NOT EXISTS data_emissao_nota DATE;
+ALTER TABLE contas_receber ADD COLUMN IF NOT EXISTS valor_pago DECIMAL(15, 2);
+ALTER TABLE contas_receber ADD COLUMN IF NOT EXISTS forma_pagamento VARCHAR(50);
 
 ALTER TABLE contas_pagar ADD COLUMN IF NOT EXISTS data_pagamento DATE;
-ALTER TABLE contas_pagar ADD COLUMN IF NOT EXISTS data_emissao_nota DATE;
+ALTER TABLE contas_pagar ADD COLUMN IF NOT EXISTS valor_pago DECIMAL(15, 2);
+ALTER TABLE contas_pagar ADD COLUMN IF NOT EXISTS forma_pagamento VARCHAR(50);
 
 CREATE INDEX idx_contas_receber_data_pagamento ON contas_receber(data_pagamento);
+CREATE INDEX idx_contas_receber_status ON contas_receber(status);
 CREATE INDEX idx_contas_pagar_data_pagamento ON contas_pagar(data_pagamento);
+CREATE INDEX idx_contas_pagar_status ON contas_pagar(status);
 ```
 
 ---
@@ -188,9 +192,9 @@ CREATE POLICY "Users can delete their own records" ON contas_receber_lotes
 
 ## Checklist de Implementação
 
-- [ ] FASE 1: Contas a Receber (já criada)
-- [ ] FASE 2: Contas a Pagar (próxima)
-- [ ] FASE 3: Campos de Conciliação
+- [x] FASE 1: Contas a Receber (já criada)
+- [ ] FASE 2: Contas a Pagar
+- [ ] FASE 3: Campos de Conciliação Bancária
 - [ ] FASE 4: Tabelas de Dashboard
 - [ ] FASE 5: RLS (Row Level Security)
 

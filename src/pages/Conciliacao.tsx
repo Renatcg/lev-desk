@@ -1,9 +1,9 @@
 import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit, Trash2, CreditCard } from "lucide-react";
 import ModalPagamento from "@/components/conciliacao/ModalPagamento";
 
 // Mock data
@@ -62,15 +62,12 @@ const mockContasPagar = [
 ];
 
 export default function Conciliacao() {
-  const [tipo, setTipo] = useState<"receber" | "pagar">("receber");
-  const [registros, setRegistros] = useState(tipo === "receber" ? mockContasReceber : mockContasPagar);
+  const [activeTab, setActiveTab] = useState("contas-receber");
   const [modalAberto, setModalAberto] = useState(false);
   const [registroSelecionado, setRegistroSelecionado] = useState<any>(null);
 
-  const handleTipoChange = (novoTipo: string) => {
-    setTipo(novoTipo as "receber" | "pagar");
-    setRegistros(novoTipo === "receber" ? mockContasReceber : mockContasPagar);
-  };
+  const registros = activeTab === "contas-receber" ? mockContasReceber : mockContasPagar;
+  const tipo = activeTab === "contas-receber" ? "receber" : "pagar";
 
   const handleAbrirModal = (registro: any) => {
     setRegistroSelecionado(registro);
@@ -91,89 +88,139 @@ export default function Conciliacao() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Conciliação Bancária</h1>
+        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+          <CreditCard className="h-8 w-8" />
+          Conciliação Bancária
+        </h1>
         <p className="text-muted-foreground mt-2">Registre pagamentos e recebimentos</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Selecione o Tipo</CardTitle>
-          <CardDescription>Escolha entre contas a receber ou contas a pagar</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Select value={tipo} onValueChange={handleTipoChange}>
-            <SelectTrigger className="w-full md:w-64">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="receber">Contas a Receber</SelectItem>
-              <SelectItem value="pagar">Contas a Pagar</SelectItem>
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList>
+          <TabsTrigger value="contas-receber">Contas a Receber</TabsTrigger>
+          <TabsTrigger value="contas-pagar">Contas a Pagar</TabsTrigger>
+        </TabsList>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            {tipo === "receber" ? "Contas a Receber Pendentes" : "Contas a Pagar Pendentes"}
-          </CardTitle>
-          <CardDescription>
-            {tipo === "receber"
-              ? "Registre os recebimentos dos clientes"
-              : "Registre os pagamentos aos fornecedores"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{tipo === "receber" ? "Cliente" : "Fornecedor"}</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>Vencimento</TableHead>
-                  <TableHead>Base</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {registros.map((registro) => (
-                  <TableRow key={registro.id}>
-                    <TableCell className="font-medium">{registro.fornecedor}</TableCell>
-                    <TableCell>R$ {registro.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
-                    <TableCell>{new Date(registro.vencimento).toLocaleDateString("pt-BR")}</TableCell>
-                    <TableCell>{registro.base}</TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-800">
-                        Pendente
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleAbrirModal(registro)}
-                          title="Registrar pagamento"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" title="Visualizar">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" title="Deletar">
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+        <TabsContent value="contas-receber" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Contas a Receber Pendentes</CardTitle>
+              <CardDescription>
+                Registre os recebimentos dos clientes
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Valor</TableHead>
+                      <TableHead>Vencimento</TableHead>
+                      <TableHead>Base</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {registros.map((registro) => (
+                      <TableRow key={registro.id}>
+                        <TableCell className="font-medium">{registro.fornecedor}</TableCell>
+                        <TableCell>R$ {registro.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
+                        <TableCell>{new Date(registro.vencimento).toLocaleDateString("pt-BR")}</TableCell>
+                        <TableCell>{registro.base}</TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-800">
+                            Pendente
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleAbrirModal(registro)}
+                              title="Registrar pagamento"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" title="Visualizar">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" title="Deletar">
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="contas-pagar" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Contas a Pagar Pendentes</CardTitle>
+              <CardDescription>
+                Registre os pagamentos aos fornecedores
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Fornecedor</TableHead>
+                      <TableHead>Valor</TableHead>
+                      <TableHead>Vencimento</TableHead>
+                      <TableHead>Base</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {registros.map((registro) => (
+                      <TableRow key={registro.id}>
+                        <TableCell className="font-medium">{registro.fornecedor}</TableCell>
+                        <TableCell>R$ {registro.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
+                        <TableCell>{new Date(registro.vencimento).toLocaleDateString("pt-BR")}</TableCell>
+                        <TableCell>{registro.base}</TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-800">
+                            Pendente
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleAbrirModal(registro)}
+                              title="Registrar pagamento"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" title="Visualizar">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" title="Deletar">
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {modalAberto && registroSelecionado && (
         <ModalPagamento
