@@ -39,12 +39,13 @@ const Financial = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex items-center justify-between mb-4">
-          <TabsList>
-            <TabsTrigger value="contas-receber">Contas a Receber</TabsTrigger>
-            <TabsTrigger value="contas-pagar">Contas a Pagar</TabsTrigger>
-          </TabsList>
-          {(activeTab === "contas-receber" || activeTab === "contas-pagar") && (
+        <TabsList className="mb-6">
+          <TabsTrigger value="contas-receber">Contas a Receber</TabsTrigger>
+          <TabsTrigger value="contas-pagar">Contas a Pagar</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="contas-receber" className="space-y-6">
+          <div className="flex justify-end">
             <Button
               onClick={() => setOpenModal(true)}
               className="gap-2"
@@ -52,14 +53,20 @@ const Financial = () => {
               <Plus className="h-4 w-4" />
               Novo Cadastro
             </Button>
-          )}
-        </div>
-
-        <TabsContent value="contas-receber" className="space-y-6">
+          </div>
           <ContasReceberList refreshTrigger={refreshTrigger} />
         </TabsContent>
 
         <TabsContent value="contas-pagar" className="space-y-6">
+          <div className="flex justify-end">
+            <Button
+              onClick={() => setOpenModal(true)}
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Novo Cadastro
+            </Button>
+          </div>
           <ContasPagarList refreshTrigger={refreshTrigger} />
         </TabsContent>
       </Tabs>
