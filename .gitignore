@@ -12,6 +12,24 @@ dist
 dist-ssr
 *.local
 
+# Laravel Landbank app
+apps/landbank-saas/.env
+apps/landbank-saas/vendor
+apps/landbank-saas/node_modules
+apps/landbank-saas/database/*.sqlite
+apps/landbank-saas/public/storage
+apps/landbank-saas/storage/*.key
+apps/landbank-saas/storage/app/*
+!apps/landbank-saas/storage/app/.gitignore
+apps/landbank-saas/storage/framework/cache/*
+!apps/landbank-saas/storage/framework/cache/.gitignore
+apps/landbank-saas/storage/framework/sessions/*
+!apps/landbank-saas/storage/framework/sessions/.gitignore
+apps/landbank-saas/storage/framework/views/*
+!apps/landbank-saas/storage/framework/views/.gitignore
+apps/landbank-saas/storage/logs/*
+!apps/landbank-saas/storage/logs/.gitignore
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

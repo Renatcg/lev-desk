@@ -1,0 +1,36 @@
+.fi-sidebar {
+    --sidebar-nav-item-padding: 0.35rem;
+}
+
+.fi-sidebar-nav,
+.fi-sidebar-item-label,
+.fi-topbar,
+.fi-ta,
+.fi-fo {
+    font-size: 0.8125rem;
+}
+
+.fi-sidebar-item-button {
+    min-height: 2rem;
+    padding-block: 0.25rem;
+}
+
+.fi-sidebar-group-label {
+    font-size: 0.6875rem;
+    letter-spacing: 0;
+    margin-bottom: 0.25rem;
+}
+
+.fi-main {
+    padding: 1rem;
+}
+
+.fi-section,
+.fi-ta-ctn {
+    border-radius: 0.25rem;
+}
+
+.fi-input-wrp,
+.fi-btn {
+    border-radius: 0.25rem;
+}
