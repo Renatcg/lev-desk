@@ -37,6 +37,8 @@ No host Laravel, configure:
 - `APP_ENV=production`
 - `APP_DEBUG=false`
 - `LOG_CHANNEL=stderr`
+- `NIXPACKS_PHP_VERSION=8.4`
+- `NIXPACKS_NODE_VERSION=22`
 - `DB_CONNECTION=pgsql`
 - `DB_URL=${{Postgres.DATABASE_URL}}`
 - `QUEUE_CONNECTION=database`

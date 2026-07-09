@@ -1,6 +1,14 @@
 #!/usr/bin/env sh
 set -e
 
+mkdir -p \
+  bootstrap/cache \
+  storage/app/public \
+  storage/framework/cache/data \
+  storage/framework/sessions \
+  storage/framework/views \
+  storage/logs
+
 php artisan storage:link || true
 php artisan migrate --force
 php artisan config:cache
