@@ -30,7 +30,8 @@ class UsersTable
                 TextColumn::make('created_at')->label('Criado em')->dateTime('d/m/Y H:i')->sortable(),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->visible(fn ($record): bool => UserResource::canEdit($record)),
                 Action::make('resetPassword')
                     ->label('Enviar senha')
                     ->icon('heroicon-m-envelope')

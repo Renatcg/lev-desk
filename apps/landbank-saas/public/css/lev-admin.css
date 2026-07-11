@@ -179,6 +179,21 @@
     background: #5c8db8;
 }
 
+.lev-map-preview {
+    background: #e8ecef;
+    border: 1px solid #d3dbe2;
+    border-radius: 0.25rem;
+    height: 280px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.lev-map-preview iframe {
+    border: 0;
+    height: 100%;
+    width: 100%;
+}
+
 .lev-topbar-user-name {
     color: #5a6570;
     display: none;
