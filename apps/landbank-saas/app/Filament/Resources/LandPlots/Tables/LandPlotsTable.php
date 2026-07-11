@@ -16,7 +16,11 @@ class LandPlotsTable
         return $table
             ->columns([
                 TextColumn::make('name')->label('Terreno')->searchable()->sortable(),
-                TextColumn::make('company.name')->label('Empresa')->searchable()->toggleable(),
+                TextColumn::make('company.name')
+                    ->label('Empresa')
+                    ->searchable()
+                    ->toggleable()
+                    ->visible(fn (): bool => auth()->user()?->isLevAdmin() ?? false),
                 TextColumn::make('status')->label('Status')->badge(),
                 TextColumn::make('city')->label('Cidade')->searchable(),
                 TextColumn::make('area_sqm')->label('Área')->numeric(decimalPlaces: 2)->suffix(' m²')->sortable(),

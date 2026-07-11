@@ -29,6 +29,16 @@ class PlotViabilityResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Landbank';
 
+    public static function canAccess(): bool
+    {
+        return false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()->with('landPlot');

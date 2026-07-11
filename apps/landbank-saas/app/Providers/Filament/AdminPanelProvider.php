@@ -35,6 +35,10 @@ class AdminPanelProvider extends PanelProvider
                 'info' => Color::hex('#7EBDC3'),
             ])
             ->brandName('LEV Landbank')
+            ->sidebarWidth('15rem')
+            ->collapsedSidebarWidth('3.75rem')
+            ->sidebarCollapsibleOnDesktop()
+            ->sidebarFullyCollapsibleOnDesktop()
             ->assets([
                 Css::make('lev-admin')->relativePublicPath('css/lev-admin.css'),
             ])

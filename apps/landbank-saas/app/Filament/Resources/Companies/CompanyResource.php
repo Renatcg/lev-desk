@@ -29,6 +29,16 @@ class CompanyResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Admin';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->isLevAdmin() ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canAccess();
+    }
+
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
