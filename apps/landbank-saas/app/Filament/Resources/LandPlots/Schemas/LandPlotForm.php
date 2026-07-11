@@ -73,6 +73,7 @@ class LandPlotForm
                                             ->label('CEP')
                                             ->live(onBlur: true)
                                             ->maxLength(9)
+                                            ->extraInputAttributes(['data-landplot-field' => 'zip_code'])
                                             ->afterStateUpdated(fn (Set $set, ?string $state) => self::fillAddressFromZipCode($set, $state))
                                             ->suffixActions([
                                                 Action::make('fillAddress')
@@ -87,22 +88,27 @@ class LandPlotForm
                                         TextInput::make('street')
                                             ->label('Logradouro')
                                             ->live(onBlur: true)
+                                            ->extraInputAttributes(['data-landplot-field' => 'street'])
                                             ->columnSpan([
                                                 'md' => 2,
                                                 'xl' => 3,
                                             ]),
                                         TextInput::make('number')
                                             ->label('Número')
-                                            ->live(onBlur: true),
+                                            ->live(onBlur: true)
+                                            ->extraInputAttributes(['data-landplot-field' => 'number']),
                                         TextInput::make('district')
                                             ->label('Bairro')
-                                            ->live(onBlur: true),
+                                            ->live(onBlur: true)
+                                            ->extraInputAttributes(['data-landplot-field' => 'district']),
                                         TextInput::make('city')
                                             ->label('Cidade')
-                                            ->live(onBlur: true),
+                                            ->live(onBlur: true)
+                                            ->extraInputAttributes(['data-landplot-field' => 'city']),
                                         TextInput::make('state')
                                             ->label('UF')
                                             ->live(onBlur: true)
+                                            ->extraInputAttributes(['data-landplot-field' => 'state'])
                                             ->maxLength(2),
                                         Grid::make([
                                             'default' => 1,
@@ -112,10 +118,12 @@ class LandPlotForm
                                                 TextInput::make('latitude')
                                                     ->numeric()
                                                     ->live(onBlur: true)
+                                                    ->extraInputAttributes(['data-landplot-field' => 'latitude'])
                                                     ->label('Latitude'),
                                                 TextInput::make('longitude')
                                                     ->numeric()
                                                     ->live(onBlur: true)
+                                                    ->extraInputAttributes(['data-landplot-field' => 'longitude'])
                                                     ->label('Longitude'),
                                             ])
                                             ->columnSpan([
@@ -175,11 +183,13 @@ class LandPlotForm
 
     protected static function googleMapsPreview(Get $get): HtmlString
     {
-        $url = self::googleMapsEmbedUrl($get);
-
-        return new HtmlString(
-            '<div class="lev-map-preview"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="'.e($url).'"></iframe></div>',
-        );
+        return new HtmlString(view('filament.components.land-plot-map-picker', [
+            'address' => self::mapQuery($get),
+            'apiKey' => config('services.google_maps.key'),
+            'embedUrl' => self::googleMapsEmbedUrl($get),
+            'latitude' => $get('latitude'),
+            'longitude' => $get('longitude'),
+        ])->render());
     }
 
     protected static function googleMapsEmbedUrl(Get $get): string
