@@ -30,7 +30,7 @@ class UserResource extends Resource
 
     protected static ?string $navigationLabel = 'Usuários';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Admin';
+    protected static ?int $navigationSort = 30;
 
     public static function canAccess(): bool
     {
