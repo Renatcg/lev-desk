@@ -30,7 +30,9 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#6B9AC4'),
+                'gray' => Color::hex('#5A6570'),
+                'info' => Color::hex('#7EBDC3'),
             ])
             ->brandName('LEV Landbank')
             ->assets([
