@@ -196,6 +196,40 @@
     width: 100%;
 }
 
+.lev-landplot-tabs > .fi-tabs {
+    background: #ffffff;
+    border: 1px solid #d3dbe2;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 8px -2px rgb(107 154 196 / 0.15);
+    justify-content: flex-start;
+    margin: 0 0 1rem;
+    padding: 0.35rem;
+}
+
+.lev-landplot-tabs > .fi-tabs .fi-tabs-item {
+    border-radius: 0.25rem;
+    min-height: 2.25rem;
+    padding-inline: 0.85rem;
+}
+
+.lev-landplot-tabs > .fi-tabs .fi-tabs-item.fi-active {
+    background: #6b9ac4;
+}
+
+.lev-landplot-tabs > .fi-tabs .fi-tabs-item.fi-active .fi-tabs-item-label,
+.lev-landplot-tabs > .fi-tabs .fi-tabs-item.fi-active > .fi-icon {
+    color: #ffffff;
+}
+
+.lev-landplot-tabs > .fi-sc-tabs-tab.fi-active {
+    background: #ffffff;
+    border: 1px solid #d3dbe2;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 8px -2px rgb(107 154 196 / 0.15);
+    margin-top: 0;
+    padding: 1rem;
+}
+
 .lev-topbar-user-name {
     color: #5a6570;
     display: none;

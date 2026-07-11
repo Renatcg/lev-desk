@@ -32,7 +32,11 @@ class LandPlotForm
                 Tabs::make('Cadastro do terreno')
                     ->id('land-plot-form-tabs')
                     ->persistTab()
+                    ->persistTabInQueryString('aba')
+                    ->contained(false)
+                    ->scrollable(false)
                     ->columnSpanFull()
+                    ->extraAttributes(['class' => 'lev-landplot-tabs'])
                     ->tabs([
                         Tab::make('Terreno')
                             ->icon(Heroicon::OutlinedMapPin)
