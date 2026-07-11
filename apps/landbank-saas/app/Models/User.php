@@ -43,6 +43,16 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === 'lev_admin';
     }
 
+    public function isCompanyAdmin(): bool
+    {
+        return $this->role === 'company_admin';
+    }
+
+    public function canManageCompanyUsers(): bool
+    {
+        return $this->isLevAdmin() || $this->isCompanyAdmin();
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->isLevAdmin() || filled($this->company_id);

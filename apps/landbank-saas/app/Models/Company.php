@@ -25,4 +25,15 @@ class Company extends Model
     {
         return $this->hasMany(LandPlot::class);
     }
+
+    public function emailDomain(): ?string
+    {
+        $email = strtolower((string) $this->email);
+
+        if (! str_contains($email, '@')) {
+            return null;
+        }
+
+        return substr(strrchr($email, '@'), 1) ?: null;
+    }
 }
