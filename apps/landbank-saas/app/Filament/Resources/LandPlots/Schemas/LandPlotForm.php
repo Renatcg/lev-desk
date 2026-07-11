@@ -11,6 +11,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -27,79 +29,117 @@ class LandPlotForm
             ->components([
                 Hidden::make('company_id')
                     ->default(fn () => auth()->user()?->company_id),
-                Section::make('Terreno')
-                    ->columns(3)
-                    ->schema([
-                        TextInput::make('name')->label('Nome')->required()->columnSpan(2),
-                        Select::make('status')
-                            ->label('Status')
-                            ->options([
-                                'prospecting' => 'Prospecção',
-                                'under_review' => 'Em análise',
-                                'negotiating' => 'Negociando',
-                                'acquired' => 'Adquirido',
-                                'archived' => 'Arquivado',
-                            ])
-                            ->default('prospecting')
-                            ->required(),
-                        TextInput::make('registry_number')->label('Matrícula / RGI'),
-                        TextInput::make('owner_name')->label('Proprietário'),
-                        TextInput::make('area_sqm')->label('Área (m²)')->numeric()->prefix('m²'),
+                Tabs::make('Cadastro do terreno')
+                    ->id('land-plot-form-tabs')
+                    ->persistTab()
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tab::make('Terreno')
+                            ->icon(Heroicon::OutlinedMapPin)
+                            ->columns(3)
+                            ->schema([
+                                TextInput::make('name')->label('Nome')->required()->columnSpan(2),
+                                Select::make('status')
+                                    ->label('Status')
+                                    ->options([
+                                        'prospecting' => 'Prospecção',
+                                        'under_review' => 'Em análise',
+                                        'negotiating' => 'Negociando',
+                                        'acquired' => 'Adquirido',
+                                        'archived' => 'Arquivado',
+                                    ])
+                                    ->default('prospecting')
+                                    ->required(),
+                                TextInput::make('registry_number')->label('Matrícula / RGI'),
+                                TextInput::make('owner_name')->label('Proprietário'),
+                                TextInput::make('area_sqm')->label('Área (m²)')->numeric()->prefix('m²'),
+                            ]),
+                        Tab::make('Endereço e mapa')
+                            ->icon(Heroicon::OutlinedMap)
+                            ->schema([
+                                Section::make('Endereço')
+                                    ->description('Digite o CEP para preencher o endereço e posicionar o mapa. Use latitude e longitude para precisão máxima.')
+                                    ->columns([
+                                        'default' => 1,
+                                        'md' => 4,
+                                        'xl' => 6,
+                                    ])
+                                    ->schema([
+                                        TextInput::make('zip_code')
+                                            ->label('CEP')
+                                            ->live(onBlur: true)
+                                            ->maxLength(9)
+                                            ->afterStateUpdated(fn (Set $set, ?string $state) => self::fillAddressFromZipCode($set, $state))
+                                            ->suffixActions([
+                                                Action::make('fillAddress')
+                                                    ->icon(Heroicon::ArrowPath)
+                                                    ->tooltip('Buscar CEP')
+                                                    ->action(fn (Set $set, Get $get) => self::fillAddressFromZipCode($set, $get('zip_code'))),
+                                                Action::make('openGoogleMaps')
+                                                    ->icon(Heroicon::MapPin)
+                                                    ->tooltip('Abrir no Google Maps')
+                                                    ->url(fn (Get $get): string => self::googleMapsSearchUrl($get), shouldOpenInNewTab: true),
+                                            ]),
+                                        TextInput::make('street')
+                                            ->label('Logradouro')
+                                            ->live(onBlur: true)
+                                            ->columnSpan([
+                                                'md' => 2,
+                                                'xl' => 3,
+                                            ]),
+                                        TextInput::make('number')
+                                            ->label('Número')
+                                            ->live(onBlur: true),
+                                        TextInput::make('district')
+                                            ->label('Bairro')
+                                            ->live(onBlur: true),
+                                        TextInput::make('city')
+                                            ->label('Cidade')
+                                            ->live(onBlur: true),
+                                        TextInput::make('state')
+                                            ->label('UF')
+                                            ->live(onBlur: true)
+                                            ->maxLength(2),
+                                        Grid::make([
+                                            'default' => 1,
+                                            'md' => 2,
+                                        ])
+                                            ->schema([
+                                                TextInput::make('latitude')
+                                                    ->numeric()
+                                                    ->live(onBlur: true)
+                                                    ->label('Latitude'),
+                                                TextInput::make('longitude')
+                                                    ->numeric()
+                                                    ->live(onBlur: true)
+                                                    ->label('Longitude'),
+                                            ])
+                                            ->columnSpan([
+                                                'md' => 2,
+                                                'xl' => 2,
+                                            ]),
+                                    ]),
+                                Placeholder::make('google_maps_preview')
+                                    ->label('Mapa')
+                                    ->content(fn (Get $get): HtmlString => self::googleMapsPreview($get))
+                                    ->columnSpanFull(),
+                            ]),
+                        Tab::make('IPTU e dívidas')
+                            ->icon(Heroicon::OutlinedBanknotes)
+                            ->columns(3)
+                            ->schema([
+                                DatePicker::make('iptu_due_date')->label('Próximo vencimento de IPTU'),
+                                TextInput::make('known_debt_amount')->label('Dívida conhecida')->numeric()->prefix('R$'),
+                                Textarea::make('known_debt_notes')->label('Observações')->rows(6)->columnSpanFull(),
+                            ]),
+                        Tab::make('IA')
+                            ->icon(Heroicon::OutlinedSparkles)
+                            ->columns(2)
+                            ->schema([
+                                TextInput::make('ai_confidence')->label('Confiança da extração')->numeric()->suffix('%'),
+                                Textarea::make('ai_extracted_registry')->label('Dados extraídos da certidão/RGI')->rows(10)->columnSpanFull(),
+                            ]),
                     ]),
-                Section::make('Localização')
-                    ->columns(4)
-                    ->schema([
-                        TextInput::make('zip_code')
-                            ->label('CEP')
-                            ->live(debounce: 700)
-                            ->maxLength(9)
-                            ->afterStateUpdated(fn (Set $set, ?string $state) => self::fillAddressFromZipCode($set, $state))
-                            ->suffixAction(
-                                Action::make('openGoogleMaps')
-                                    ->icon(Heroicon::MapPin)
-                                    ->tooltip('Abrir no Google Maps')
-                                    ->url(fn (Get $get): string => self::googleMapsSearchUrl($get), shouldOpenInNewTab: true),
-                            ),
-                        TextInput::make('street')
-                            ->label('Logradouro')
-                            ->live(debounce: 500)
-                            ->columnSpan(2),
-                        TextInput::make('number')
-                            ->label('Número')
-                            ->live(debounce: 500),
-                        TextInput::make('district')
-                            ->label('Bairro')
-                            ->live(debounce: 500),
-                        TextInput::make('city')
-                            ->label('Cidade')
-                            ->live(debounce: 500),
-                        TextInput::make('state')
-                            ->label('UF')
-                            ->live(debounce: 500)
-                            ->maxLength(2),
-                        Grid::make(2)->schema([
-                            TextInput::make('latitude')->numeric()->label('Latitude'),
-                            TextInput::make('longitude')->numeric()->label('Longitude'),
-                        ]),
-                        Placeholder::make('google_maps_preview')
-                            ->label('Google Maps')
-                            ->content(fn (Get $get): HtmlString => self::googleMapsPreview($get))
-                            ->columnSpanFull(),
-                    ]),
-                Section::make('IPTU e dívidas')
-                    ->columns(3)
-                    ->schema([
-                        DatePicker::make('iptu_due_date')->label('Próximo vencimento de IPTU'),
-                        TextInput::make('known_debt_amount')->label('Dívida conhecida')->numeric()->prefix('R$'),
-                        Textarea::make('known_debt_notes')->label('Observações')->rows(3)->columnSpanFull(),
-                    ]),
-                Section::make('IA')
-                    ->columns(2)
-                    ->schema([
-                        TextInput::make('ai_confidence')->label('Confiança da extração')->numeric()->suffix('%'),
-                        Textarea::make('ai_extracted_registry')->label('Dados extraídos da certidão/RGI')->rows(5)->columnSpanFull(),
-                    ])
-                    ->collapsed(),
             ]);
     }
 
@@ -123,10 +163,10 @@ class LandPlotForm
             return;
         }
 
-        $set('street', $response->json('logradouro'));
-        $set('district', $response->json('bairro'));
-        $set('city', $response->json('localidade'));
-        $set('state', $response->json('uf'));
+        $set('street', $response->json('logradouro'), shouldCallUpdatedHooks: true);
+        $set('district', $response->json('bairro'), shouldCallUpdatedHooks: true);
+        $set('city', $response->json('localidade'), shouldCallUpdatedHooks: true);
+        $set('state', $response->json('uf'), shouldCallUpdatedHooks: true);
     }
 
     protected static function googleMapsPreview(Get $get): HtmlString

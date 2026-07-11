@@ -183,7 +183,9 @@
     background: #e8ecef;
     border: 1px solid #d3dbe2;
     border-radius: 0.25rem;
-    height: 280px;
+    box-shadow: 0 12px 30px -18px rgb(51 51 51 / 0.45);
+    height: clamp(460px, 62vh, 760px);
+    min-height: 460px;
     overflow: hidden;
     width: 100%;
 }
@@ -223,5 +225,10 @@
 
     .lev-chat__form {
         flex-direction: column;
+    }
+
+    .lev-map-preview {
+        height: 420px;
+        min-height: 420px;
     }
 }
