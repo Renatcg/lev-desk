@@ -1,16 +1,78 @@
-.fi-body {
-    background: #f8fafb;
-    color: #333333;
+:root {
+    --lev-bg: #ffffff;
+    --lev-panel: #ffffff;
+    --lev-soft: #f5f8fb;
+    --lev-soft-blue: #eef6fc;
+    --lev-line: #d7e0e8;
+    --lev-line-strong: #cbd6df;
+    --lev-text: #2f3136;
+    --lev-muted: #64717f;
+    --lev-muted-2: #8b96a3;
+    --lev-blue: #76a8cf;
+    --lev-blue-strong: #5f96c1;
+    --lev-cyan: #78c4c8;
+    --lev-yellow: #fff1b7;
+    --lev-green: #cef8df;
+    --lev-radius: 0.75rem;
+    --lev-radius-sm: 0.5rem;
+    --lev-shadow: 0 10px 24px -18px rgb(42 54 68 / 0.55);
+    --lev-font: "Inter", "Instrument Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-.fi-sidebar,
-.fi-topbar {
-    background: #f8fafb;
-    border-color: #d3dbe2;
+.fi-body {
+    background: var(--lev-bg);
+    color: var(--lev-text);
+    font-family: var(--lev-font);
+}
+
+.fi-layout {
+    background: var(--lev-bg);
 }
 
 .fi-sidebar {
-    --sidebar-nav-item-padding: 0.35rem;
+    --sidebar-nav-item-padding: 0.45rem;
+    background: var(--lev-panel);
+    border-color: var(--lev-line);
+    color: var(--lev-muted);
+}
+
+.fi-sidebar-header-ctn,
+.fi-sidebar-header {
+    background: var(--lev-panel);
+    border-color: var(--lev-line);
+    min-height: 4.75rem;
+}
+
+.fi-logo,
+.fi-sidebar-header .fi-logo {
+    color: var(--lev-text);
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    text-transform: lowercase;
+}
+
+.fi-logo::after {
+    background: currentcolor;
+    border-radius: 0.18rem 0.18rem 0.4rem 0.18rem;
+    content: "";
+    display: inline-block;
+    height: 1.05rem;
+    margin-left: 0.45rem;
+    transform: skewX(-18deg) translateY(0.1rem);
+    width: 1.25rem;
+}
+
+.fi-topbar {
+    background: rgb(255 255 255 / 0.9);
+    border-color: var(--lev-line);
+    box-shadow: none;
+}
+
+.fi-sidebar-nav {
+    gap: 0.45rem;
+    padding: 1.35rem 1rem 1rem;
 }
 
 .fi-sidebar-nav,
@@ -18,55 +80,93 @@
 .fi-topbar,
 .fi-ta,
 .fi-fo {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
 }
 
-.fi-sidebar-item-button {
-    min-height: 2rem;
-    padding-block: 0.25rem;
+.fi-sidebar-group {
+    gap: 0.3rem;
 }
 
 .fi-sidebar-group-label {
-    color: #5a6570;
-    font-size: 0.6875rem;
+    color: var(--lev-muted);
+    font-size: 0.76rem;
+    font-weight: 700;
     letter-spacing: 0;
-    margin-bottom: 0.25rem;
+    margin: 0.6rem 0 0.35rem;
+    padding-inline: 0.3rem;
+    text-transform: none;
 }
 
 .fi-sidebar-item-button {
-    color: #5a6570;
+    border-radius: var(--lev-radius);
+    color: var(--lev-muted);
+    font-weight: 700;
+    min-height: 2.75rem;
+    padding: 0.65rem 0.85rem;
 }
 
 .fi-sidebar-item-button:hover {
-    background: #e8ecef;
-    color: #3a424d;
+    background: var(--lev-soft);
+    color: var(--lev-text);
+}
+
+.fi-sidebar-item-icon {
+    color: currentcolor;
+    height: 1.15rem;
+    width: 1.15rem;
 }
 
 .fi-sidebar-item-active .fi-sidebar-item-button {
-    background: #6b9ac4;
+    background: var(--lev-blue);
     color: #ffffff;
 }
 
+.fi-sidebar-item-active .fi-sidebar-item-icon {
+    color: #ffffff;
+}
+
+.fi-sidebar-item-badge {
+    background: var(--lev-soft-blue);
+    border: 1px solid #cfe8fb;
+    border-radius: 0.45rem;
+    color: #006bb7;
+    font-weight: 800;
+    min-width: 2rem;
+}
+
+.fi-sidebar-sub-group-items {
+    border-color: var(--lev-line-strong);
+}
+
 .fi-main {
-    padding: 20px 1rem 1rem;
+    padding: 2.5rem 2.75rem;
+}
+
+.fi-page-header-main-ctn {
+    gap: 0.55rem;
+    padding: 0 0 1.25rem;
 }
 
 .fi-header {
     margin-top: 0;
 }
 
-.fi-page-header-main-ctn {
-    gap: 0.75rem;
-    padding-bottom: 0.75rem;
-    padding-top: 0;
+.fi-header-heading {
+    color: var(--lev-text);
+    font-size: clamp(1.6rem, 1.25rem + 0.8vw, 2.15rem);
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1.12;
+}
+
+.fi-header-subheading {
+    color: var(--lev-muted);
+    font-size: 1rem;
+    font-weight: 600;
 }
 
 .fi-page-content {
-    gap: 1rem;
-}
-
-.fi-header-heading {
-    line-height: 1.1;
+    gap: 1.25rem;
 }
 
 .fi-breadcrumbs {
@@ -74,59 +174,201 @@
 }
 
 .fi-section,
-.fi-ta-ctn {
-    border-color: #d3dbe2;
-    border-radius: 0.25rem;
-    box-shadow: 0 2px 8px -2px rgb(107 154 196 / 0.15);
+.fi-ta-ctn,
+.fi-modal-window,
+.fi-dropdown-panel {
+    background: var(--lev-panel);
+    border-color: var(--lev-line);
+    border-radius: var(--lev-radius);
+    box-shadow: var(--lev-shadow);
+}
+
+.fi-section-header {
+    padding-block: 1rem 0.75rem;
+}
+
+.fi-section-content {
+    padding: 1rem;
 }
 
 .fi-input-wrp,
+.fi-select-input,
+.fi-btn,
+.fi-badge,
+.fi-tabs,
+.fi-modal-window {
+    border-radius: var(--lev-radius-sm);
+}
+
+.fi-input-wrp {
+    border-color: var(--lev-line);
+    box-shadow: 0 1px 2px rgb(42 54 68 / 0.04);
+    min-height: 2.65rem;
+}
+
+.fi-input-wrp:focus-within {
+    border-color: var(--lev-blue);
+    box-shadow: 0 0 0 3px rgb(118 168 207 / 0.18);
+}
+
+.fi-fo-field-label {
+    color: var(--lev-text);
+    font-weight: 700;
+}
+
 .fi-btn {
-    border-radius: 0.25rem;
+    font-weight: 800;
+    min-height: 2.65rem;
+    padding-inline: 1rem;
 }
 
 .fi-btn-color-primary {
-    background: #6b9ac4;
+    background: var(--lev-blue);
+    color: #ffffff;
 }
 
 .fi-btn-color-primary:hover {
-    background: #5c8db8;
+    background: var(--lev-blue-strong);
+}
+
+.fi-btn-color-gray {
+    border-color: var(--lev-line);
+    color: var(--lev-text);
+}
+
+.fi-ta-header,
+.fi-ta-table thead {
+    background: var(--lev-soft);
+}
+
+.fi-ta-row:hover {
+    background: var(--lev-soft);
 }
 
 .fi-badge {
-    border-radius: 0.25rem;
+    font-weight: 800;
+}
+
+.lev-sidebar-footer {
+    border-top: 1px solid var(--lev-line);
+    padding: 1rem;
+}
+
+.lev-sidebar-user {
+    align-items: center;
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    margin-bottom: 0.8rem;
+}
+
+.lev-sidebar-user__avatar {
+    align-items: center;
+    background: var(--lev-blue);
+    border-radius: 999px;
+    color: #ffffff;
+    display: flex;
+    font-size: 0.8rem;
+    font-weight: 800;
+    height: 2.2rem;
+    justify-content: center;
+    width: 2.2rem;
+}
+
+.lev-sidebar-user__meta {
+    min-width: 0;
+}
+
+.lev-sidebar-user__name {
+    color: var(--lev-text);
+    font-size: 0.88rem;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lev-sidebar-user__email {
+    color: var(--lev-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lev-sidebar-user__theme {
+    align-items: center;
+    color: var(--lev-muted);
+    display: flex;
+    height: 2rem;
+    justify-content: center;
+    width: 2rem;
+}
+
+.lev-sidebar-user__theme-icon {
+    height: 1.05rem;
+    width: 1.05rem;
+}
+
+.lev-sidebar-logout {
+    align-items: center;
+    border: 1px solid var(--lev-line);
+    border-radius: var(--lev-radius-sm);
+    color: var(--lev-text);
+    display: flex;
+    font-size: 0.86rem;
+    font-weight: 800;
+    gap: 0.6rem;
+    min-height: 2.55rem;
+    padding: 0.55rem 0.8rem;
+    width: 100%;
+}
+
+.lev-sidebar-logout:hover {
+    background: var(--lev-soft);
+}
+
+.lev-sidebar-logout__icon {
+    height: 1rem;
+    width: 1rem;
+}
+
+.lev-topbar-user-name {
+    display: none;
 }
 
 .lev-chat {
-    background: #ffffff;
-    border: 1px solid #d3dbe2;
-    border-radius: 0.25rem;
-    box-shadow: 0 2px 8px -2px rgb(107 154 196 / 0.15);
+    background: var(--lev-panel);
+    border: 1px solid var(--lev-line);
+    border-radius: var(--lev-radius);
+    box-shadow: var(--lev-shadow);
     display: flex;
     flex-direction: column;
-    height: min(680px, calc(100vh - 9rem));
+    height: min(720px, calc(100vh - 10rem));
     margin-inline: auto;
-    max-width: 960px;
-    min-height: 420px;
+    max-width: 980px;
+    min-height: 440px;
     overflow: hidden;
 }
 
 .lev-chat__header {
-    border-bottom: 1px solid #d3dbe2;
-    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--lev-line);
+    padding: 1rem 1.2rem;
 }
 
 .lev-chat__header h2 {
-    color: #333333;
-    font-size: 0.95rem;
-    font-weight: 700;
+    color: var(--lev-text);
+    font-size: 1rem;
+    font-weight: 800;
     margin: 0;
 }
 
 .lev-chat__header p {
-    color: #5a6570;
-    font-size: 0.75rem;
-    margin: 0.15rem 0 0;
+    color: var(--lev-muted);
+    font-size: 0.84rem;
+    font-weight: 600;
+    margin: 0.18rem 0 0;
 }
 
 .lev-chat__messages {
@@ -135,77 +377,74 @@
     flex-direction: column;
     gap: 0.75rem;
     overflow-y: auto;
-    padding: 1rem;
+    padding: 1.1rem;
 }
 
 .lev-chat__bubble {
-    border-radius: 0.25rem;
-    font-size: 0.875rem;
-    line-height: 1.45;
+    border-radius: var(--lev-radius);
+    font-size: 0.9rem;
+    line-height: 1.5;
     max-width: min(78%, 48rem);
-    padding: 0.65rem 0.8rem;
+    padding: 0.75rem 0.9rem;
     white-space: pre-line;
 }
 
 .lev-chat__bubble--user {
     align-self: flex-end;
-    background: #6b9ac4;
+    background: var(--lev-blue);
     color: #ffffff;
 }
 
 .lev-chat__bubble--assistant {
     align-self: flex-start;
-    background: #e8ecef;
-    color: #333333;
+    background: var(--lev-soft);
+    color: var(--lev-text);
 }
 
 .lev-chat__form {
-    border-top: 1px solid #d3dbe2;
+    border-top: 1px solid var(--lev-line);
     display: flex;
-    gap: 0.5rem;
-    padding: 0.75rem;
+    gap: 0.65rem;
+    padding: 0.9rem;
 }
 
 .lev-chat__form input {
     background: #ffffff;
-    border: 1px solid #d3dbe2;
-    border-radius: 0.25rem;
-    color: #333333;
-    font-size: 0.875rem;
-    min-height: 2.25rem;
-    outline: none;
-    padding: 0.45rem 0.65rem;
-}
-
-.lev-chat__form input {
+    border: 1px solid var(--lev-line);
+    border-radius: var(--lev-radius-sm);
+    color: var(--lev-text);
     flex: 1;
+    font-size: 0.92rem;
+    min-height: 2.7rem;
     min-width: 0;
+    outline: none;
+    padding: 0.55rem 0.8rem;
 }
 
 .lev-chat__form input:focus {
-    border-color: #6b9ac4;
-    box-shadow: 0 0 0 2px rgb(107 154 196 / 0.18);
+    border-color: var(--lev-blue);
+    box-shadow: 0 0 0 3px rgb(118 168 207 / 0.18);
 }
 
 .lev-chat__form button {
-    background: #6b9ac4;
-    border-radius: 0.25rem;
+    background: var(--lev-blue);
+    border-radius: var(--lev-radius-sm);
     color: #ffffff;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    min-height: 2.25rem;
-    padding: 0.45rem 0.85rem;
+    font-size: 0.88rem;
+    font-weight: 800;
+    min-height: 2.7rem;
+    padding: 0.55rem 1rem;
 }
 
 .lev-chat__form button:hover {
-    background: #5c8db8;
+    background: var(--lev-blue-strong);
 }
 
 .lev-map-preview {
-    background: #e8ecef;
-    border: 1px solid #d3dbe2;
-    border-radius: 0.25rem;
-    box-shadow: 0 12px 30px -18px rgb(51 51 51 / 0.45);
+    background: var(--lev-soft);
+    border: 1px solid var(--lev-line);
+    border-radius: var(--lev-radius);
+    box-shadow: var(--lev-shadow);
     height: clamp(460px, 62vh, 760px);
     min-height: 460px;
     overflow: hidden;
@@ -236,12 +475,9 @@
     gap: 0.3rem;
 }
 
-.lev-address-map-grid .fi-input-wrp {
-    min-height: 2.25rem;
-}
-
+.lev-address-map-grid .fi-input-wrp,
 .lev-address-map-grid input {
-    min-height: 2.25rem;
+    min-height: 2.35rem;
 }
 
 .lev-map-picker,
@@ -264,9 +500,9 @@
 }
 
 .lev-map-picker__canvas {
-    border: 1px solid #d3dbe2;
-    border-radius: 0.25rem;
-    box-shadow: 0 12px 30px -18px rgb(51 51 51 / 0.45);
+    border: 1px solid var(--lev-line);
+    border-radius: var(--lev-radius);
+    box-shadow: var(--lev-shadow);
     height: 100%;
     min-height: 520px;
     overflow: hidden;
@@ -275,7 +511,7 @@
 
 .lev-map-picker__modal {
     align-items: center;
-    background: rgb(51 51 51 / 0.62);
+    background: rgb(47 49 54 / 0.62);
     display: none;
     inset: 0;
     justify-content: center;
@@ -290,7 +526,7 @@
 
 .lev-map-picker__modal-panel {
     background: #ffffff;
-    border-radius: 0.25rem;
+    border-radius: var(--lev-radius);
     box-shadow: 0 24px 70px -24px rgb(0 0 0 / 0.55);
     height: min(88vh, 920px);
     padding: 0.75rem;
@@ -300,12 +536,12 @@
 
 .lev-map-picker__modal-close {
     background: #ffffff;
-    border: 1px solid #d3dbe2;
-    border-radius: 0.25rem;
-    color: #333333;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--lev-line);
+    border-radius: var(--lev-radius-sm);
+    color: var(--lev-text);
+    font-size: 0.85rem;
+    font-weight: 800;
+    padding: 0.4rem 0.7rem;
     position: absolute;
     right: 1rem;
     top: 1rem;
@@ -313,7 +549,7 @@
 }
 
 .lev-map-picker__modal-canvas {
-    border-radius: 0.25rem;
+    border-radius: var(--lev-radius);
     height: 100%;
     overflow: hidden;
     width: 100%;
@@ -321,22 +557,25 @@
 
 .lev-landplot-tabs > .fi-tabs {
     background: #ffffff;
-    border: 1px solid #d3dbe2;
-    border-radius: 0.25rem;
-    box-shadow: 0 2px 8px -2px rgb(107 154 196 / 0.15);
+    border: 1px solid var(--lev-line);
+    border-radius: var(--lev-radius-sm);
+    box-shadow: none;
     justify-content: flex-start;
     margin: 0 0 1rem;
     padding: 0.35rem;
 }
 
 .lev-landplot-tabs > .fi-tabs .fi-tabs-item {
-    border-radius: 0.25rem;
-    min-height: 2.25rem;
-    padding-inline: 0.85rem;
+    border-radius: var(--lev-radius-sm);
+    color: var(--lev-muted);
+    font-weight: 800;
+    min-height: 2.45rem;
+    padding-inline: 0.95rem;
 }
 
 .lev-landplot-tabs > .fi-tabs .fi-tabs-item.fi-active {
-    background: #6b9ac4;
+    background: var(--lev-blue);
+    color: #ffffff;
 }
 
 .lev-landplot-tabs > .fi-tabs .fi-tabs-item.fi-active .fi-tabs-item-label,
@@ -346,31 +585,18 @@
 
 .lev-landplot-tabs > .fi-sc-tabs-tab.fi-active {
     background: #ffffff;
-    border: 1px solid #d3dbe2;
-    border-radius: 0.25rem;
-    box-shadow: 0 2px 8px -2px rgb(107 154 196 / 0.15);
+    border: 1px solid var(--lev-line);
+    border-radius: var(--lev-radius);
+    box-shadow: var(--lev-shadow);
     margin-top: 0;
     padding: 1rem;
 }
 
-.lev-topbar-user-name {
-    color: #5a6570;
-    display: none;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    max-width: 12rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-@media (min-width: 768px) {
-    .lev-topbar-user-name {
-        display: block;
-    }
-}
-
 @media (max-width: 640px) {
+    .fi-main {
+        padding: 1.25rem 1rem;
+    }
+
     .lev-chat {
         height: calc(100vh - 7rem);
         min-height: 360px;

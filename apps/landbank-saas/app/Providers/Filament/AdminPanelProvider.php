@@ -39,12 +39,12 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->passwordReset()
             ->colors([
-                'primary' => Color::hex('#6B9AC4'),
-                'gray' => Color::hex('#5A6570'),
-                'info' => Color::hex('#7EBDC3'),
+                'primary' => Color::hex('#76A8CF'),
+                'gray' => Color::hex('#64717F'),
+                'info' => Color::hex('#78C4C8'),
             ])
-            ->brandName('LEV Landbank')
-            ->sidebarWidth('15rem')
+            ->brandName('lev')
+            ->sidebarWidth('17.5rem')
             ->collapsedSidebarWidth('3.75rem')
             ->sidebarCollapsibleOnDesktop()
             ->sidebarFullyCollapsibleOnDesktop()
@@ -109,6 +109,10 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,
                 fn (): string => view('filament.components.topbar-user-name')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::SIDEBAR_FOOTER,
+                fn (): string => view('filament.components.sidebar-user-footer')->render(),
             )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
