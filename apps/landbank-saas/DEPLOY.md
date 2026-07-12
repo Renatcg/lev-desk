@@ -43,6 +43,8 @@ No host Laravel, configure:
 - `DB_URL=${{Postgres.DATABASE_URL}}`
 - `QUEUE_CONNECTION=database`
 
+Se estiver acessando diretamente pelo domínio do Railway, use a URL do Railway em `APP_URL` e `ASSET_URL`. O upload de documentos usa URLs assinadas do Livewire e falha quando essas variáveis apontam para um domínio diferente do que está aberto no navegador.
+
 Crie também `APP_KEY`. Localmente, dentro de `apps/landbank-saas`, gere uma chave com:
 
 ```bash

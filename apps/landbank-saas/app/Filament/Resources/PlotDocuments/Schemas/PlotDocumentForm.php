@@ -44,9 +44,11 @@ class PlotDocumentForm
                         TextInput::make('name')->label('Nome')->required()->columnSpan(2),
                         FileUpload::make('path')
                             ->label('Arquivo')
+                            ->disk('public')
                             ->directory('plot-documents')
                             ->downloadable()
                             ->openable()
+                            ->preserveFilenames()
                             ->required()
                             ->columnSpan(2),
                         DatePicker::make('expires_at')->label('Vencimento'),

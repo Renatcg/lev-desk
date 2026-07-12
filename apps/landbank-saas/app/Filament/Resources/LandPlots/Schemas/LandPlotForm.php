@@ -172,9 +172,11 @@ class LandPlotForm
                                             ->label('Vencimento'),
                                         FileUpload::make('path')
                                             ->label('Arquivo')
+                                            ->disk('public')
                                             ->directory('plot-documents')
                                             ->downloadable()
                                             ->openable()
+                                            ->preserveFilenames()
                                             ->required()
                                             ->columnSpanFull(),
                                         Select::make('status')
