@@ -4,6 +4,7 @@ set -e
 mkdir -p \
   bootstrap/cache \
   storage/app/public \
+  storage/app/public/livewire-tmp \
   storage/framework/cache/data \
   storage/framework/sessions \
   storage/framework/views \
