@@ -17,6 +17,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Http;
@@ -141,8 +142,10 @@ class LandPlotForm
                         Tab::make('Documentos')
                             ->icon(Heroicon::OutlinedDocumentText)
                             ->schema([
+                                View::make('filament.components.land-plot-document-explorer')
+                                    ->columnSpanFull(),
                                 Repeater::make('documents')
-                                    ->label('Documentos')
+                                    ->label('Gerenciar documentos')
                                     ->relationship()
                                     ->addActionLabel('Adicionar documento')
                                     ->itemLabel(fn (array $state): ?string => $state['name'] ?? 'Documento')
