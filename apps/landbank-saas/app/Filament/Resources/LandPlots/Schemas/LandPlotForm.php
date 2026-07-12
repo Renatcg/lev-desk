@@ -61,8 +61,12 @@ class LandPlotForm
                         Tab::make('Endereço e mapa')
                             ->icon(Heroicon::OutlinedMap)
                             ->schema([
+                                Placeholder::make('google_maps_preview')
+                                    ->label('Mapa')
+                                    ->hiddenLabel()
+                                    ->content(fn (Get $get): HtmlString => self::googleMapsPreview($get))
+                                    ->columnSpanFull(),
                                 Section::make('Endereço')
-                                    ->description('Digite o CEP para preencher o endereço e posicionar o mapa. Use latitude e longitude para precisão máxima.')
                                     ->columns([
                                         'default' => 1,
                                         'md' => 4,
@@ -131,10 +135,6 @@ class LandPlotForm
                                                 'xl' => 2,
                                             ]),
                                     ]),
-                                Placeholder::make('google_maps_preview')
-                                    ->label('Mapa')
-                                    ->content(fn (Get $get): HtmlString => self::googleMapsPreview($get))
-                                    ->columnSpanFull(),
                             ]),
                         Tab::make('IPTU e dívidas')
                             ->icon(Heroicon::OutlinedBanknotes)

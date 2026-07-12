@@ -12,12 +12,10 @@
 >
     @if (filled($apiKey))
         <div class="lev-map-picker__canvas"></div>
-        <div class="lev-map-picker__hint">Clique no mapa ou arraste o pin para atualizar latitude, longitude e endereço.</div>
     @else
         <div class="lev-map-preview">
             <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="{{ $embedUrl }}"></iframe>
         </div>
-        <div class="lev-map-picker__hint">Para selecionar no mapa e preencher o endereço automaticamente, configure GOOGLE_MAPS_API_KEY no Railway.</div>
     @endif
 </div>
 
@@ -35,13 +33,14 @@
             const setField = (field, value) => {
                 const input = document.querySelector(`[data-landplot-field="${field}"]`);
 
-                if (!input || value === undefined || value === null || value === '') {
+                if (!input || value === undefined || value === null) {
                     return;
                 }
 
                 input.value = value;
-                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertReplacementText', data: String(value) }));
                 input.dispatchEvent(new Event('change', { bubbles: true }));
+                input.dispatchEvent(new Event('blur', { bubbles: true }));
             };
 
             const addressPart = (components, type, shortName = false) => {
@@ -50,11 +49,32 @@
                 return component ? (shortName ? component.short_name : component.long_name) : '';
             };
 
+            const scoreResult = (result) => {
+                const components = result.address_components || [];
+                const has = (type) => components.some((item) => item.types.includes(type));
+
+                return [
+                    has('route'),
+                    has('street_number'),
+                    has('sublocality_level_1') || has('sublocality') || has('neighborhood') || has('political'),
+                    has('administrative_area_level_2') || has('locality'),
+                    has('administrative_area_level_1'),
+                    has('postal_code'),
+                ].filter(Boolean).length;
+            };
+
+            const bestAddressResult = (results) => {
+                return [...(results || [])].sort((a, b) => scoreResult(b) - scoreResult(a))[0];
+            };
+
             const applyAddress = (result) => {
                 const components = result.address_components || [];
-                const street = addressPart(components, 'route');
+                const fallbackStreet = (result.formatted_address || '').split(',')[0] || '';
+                const street = addressPart(components, 'route') || fallbackStreet;
                 const number = addressPart(components, 'street_number');
-                const district = addressPart(components, 'sublocality_level_1') || addressPart(components, 'neighborhood');
+                const district = addressPart(components, 'sublocality_level_1') ||
+                    addressPart(components, 'sublocality') ||
+                    addressPart(components, 'neighborhood');
                 const city = addressPart(components, 'administrative_area_level_2') || addressPart(components, 'locality');
                 const state = addressPart(components, 'administrative_area_level_1', true);
                 const zipCode = addressPart(components, 'postal_code');
@@ -124,8 +144,10 @@
                     setField('longitude', lng.toFixed(8));
 
                     geocoder.geocode({ location }, (results, status) => {
-                        if (status === 'OK' && results?.[0]) {
-                            applyAddress(results[0]);
+                        const result = status === 'OK' ? bestAddressResult(results) : null;
+
+                        if (result) {
+                            applyAddress(result);
                         }
                     });
                 };

@@ -200,16 +200,10 @@
     border: 1px solid #d3dbe2;
     border-radius: 0.25rem;
     box-shadow: 0 12px 30px -18px rgb(51 51 51 / 0.45);
-    height: clamp(520px, 68vh, 820px);
-    min-height: 520px;
+    height: clamp(560px, 72vh, 860px);
+    min-height: 560px;
     overflow: hidden;
     width: 100%;
-}
-
-.lev-map-picker__hint {
-    color: #5a6570;
-    font-size: 0.75rem;
-    margin-top: 0.5rem;
 }
 
 .lev-landplot-tabs > .fi-tabs {
@@ -283,7 +277,7 @@
     }
 
     .lev-map-picker__canvas {
-        height: 440px;
-        min-height: 440px;
+        height: 460px;
+        min-height: 460px;
     }
 }
