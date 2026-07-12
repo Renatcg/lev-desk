@@ -4,8 +4,10 @@ namespace App\Filament\Resources\LandPlots\Schemas;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -34,7 +36,7 @@ class LandPlotForm
                     ->persistTab()
                     ->persistTabInQueryString('aba')
                     ->contained(false)
-                    ->scrollable(false)
+                    ->scrollable()
                     ->columnSpanFull()
                     ->extraAttributes(['class' => 'lev-landplot-tabs'])
                     ->tabs([
@@ -135,6 +137,118 @@ class LandPlotForm
                                 DatePicker::make('iptu_due_date')->label('Próximo vencimento de IPTU'),
                                 TextInput::make('known_debt_amount')->label('Dívida conhecida')->numeric()->prefix('R$'),
                                 Textarea::make('known_debt_notes')->label('Observações')->rows(6)->columnSpanFull(),
+                            ]),
+                        Tab::make('Documentos')
+                            ->icon(Heroicon::OutlinedDocumentText)
+                            ->schema([
+                                Repeater::make('documents')
+                                    ->label('Documentos')
+                                    ->relationship()
+                                    ->addActionLabel('Adicionar documento')
+                                    ->itemLabel(fn (array $state): ?string => $state['name'] ?? 'Documento')
+                                    ->reorderable(false)
+                                    ->collapsible()
+                                    ->collapsed()
+                                    ->columns(3)
+                                    ->schema([
+                                        Select::make('type')
+                                            ->label('Tipo')
+                                            ->options([
+                                                'rgi' => 'RGI / Matrícula',
+                                                'topography' => 'Topografia',
+                                                'certificate' => 'Certidão',
+                                                'cnd' => 'CND',
+                                                'iptu' => 'Carnê de IPTU',
+                                                'viability' => 'PDF de viabilidade',
+                                                'contract' => 'Contrato',
+                                                'other' => 'Outro',
+                                            ])
+                                            ->required(),
+                                        TextInput::make('name')
+                                            ->label('Nome')
+                                            ->required()
+                                            ->maxLength(255),
+                                        DatePicker::make('expires_at')
+                                            ->label('Vencimento'),
+                                        FileUpload::make('path')
+                                            ->label('Arquivo')
+                                            ->directory('plot-documents')
+                                            ->downloadable()
+                                            ->openable()
+                                            ->required()
+                                            ->columnSpanFull(),
+                                        Select::make('status')
+                                            ->label('Status')
+                                            ->options([
+                                                'pending_review' => 'Pendente de revisão',
+                                                'valid' => 'Válido',
+                                                'expires_soon' => 'Próximo do vencimento',
+                                                'expired' => 'Vencido',
+                                            ])
+                                            ->default('pending_review')
+                                            ->required(),
+                                        TextInput::make('ai_confidence')
+                                            ->label('Confiança da IA')
+                                            ->numeric()
+                                            ->suffix('%'),
+                                        Textarea::make('ai_extracted_data')
+                                            ->label('Dados extraídos pela IA')
+                                            ->rows(5)
+                                            ->columnSpanFull(),
+                                    ])
+                                    ->columnSpanFull(),
+                            ]),
+                        Tab::make('Viabilidade')
+                            ->icon(Heroicon::OutlinedPresentationChartLine)
+                            ->schema([
+                                Section::make()
+                                    ->relationship('viability')
+                                    ->columns(3)
+                                    ->schema([
+                                        TextInput::make('project_name')
+                                            ->label('Empreendimento')
+                                            ->columnSpanFull(),
+                                        TextInput::make('land_value')
+                                            ->label('Valor do terreno')
+                                            ->numeric()
+                                            ->prefix('R$'),
+                                        TextInput::make('vgv')
+                                            ->label('VGV')
+                                            ->numeric()
+                                            ->prefix('R$'),
+                                        TextInput::make('units_count')
+                                            ->label('Unidades')
+                                            ->numeric(),
+                                        Select::make('standard')
+                                            ->label('Padrão')
+                                            ->options([
+                                                'economic' => 'Econômico',
+                                                'standard' => 'Médio',
+                                                'high' => 'Alto padrão',
+                                                'luxury' => 'Luxo',
+                                                'mixed' => 'Misto',
+                                            ]),
+                                        DatePicker::make('launch_month')
+                                            ->label('Mês de lançamento')
+                                            ->native(false)
+                                            ->displayFormat('m/Y'),
+                                        TextInput::make('sellable_area_sqm')
+                                            ->label('Área vendável')
+                                            ->numeric()
+                                            ->suffix('m²'),
+                                        Textarea::make('assumptions')
+                                            ->label('Premissas')
+                                            ->rows(4)
+                                            ->columnSpanFull(),
+                                        TextInput::make('ai_confidence')
+                                            ->label('Confiança da IA')
+                                            ->numeric()
+                                            ->suffix('%'),
+                                        Textarea::make('ai_extracted_viability')
+                                            ->label('Dados extraídos do PDF')
+                                            ->rows(5)
+                                            ->columnSpanFull(),
+                                    ]),
                             ]),
                         Tab::make('IA')
                             ->icon(Heroicon::OutlinedSparkles)

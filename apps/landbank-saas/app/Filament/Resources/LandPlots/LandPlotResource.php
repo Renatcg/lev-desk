@@ -5,8 +5,6 @@ namespace App\Filament\Resources\LandPlots;
 use App\Filament\Resources\LandPlots\Pages\CreateLandPlot;
 use App\Filament\Resources\LandPlots\Pages\EditLandPlot;
 use App\Filament\Resources\LandPlots\Pages\ListLandPlots;
-use App\Filament\Resources\LandPlots\RelationManagers\DocumentsRelationManager;
-use App\Filament\Resources\LandPlots\RelationManagers\ViabilityRelationManager;
 use App\Filament\Resources\LandPlots\Schemas\LandPlotForm;
 use App\Filament\Resources\LandPlots\Tables\LandPlotsTable;
 use App\Models\LandPlot;
@@ -60,7 +58,7 @@ class LandPlotResource extends Resource
                     $plots
                         ->map(fn (LandPlot $plot): NavigationItem => NavigationItem::make($plot->name)
                             ->url(static::getUrl('edit', ['record' => $plot]))
-                            ->isActiveWhen(fn (): bool => $request->routeIs(static::getRouteBaseName() . '.edit') && (string) $activeRecord === (string) $plot->getKey())
+                            ->isActiveWhen(fn (): bool => $request->routeIs(static::getRouteBaseName().'.edit') && (string) $activeRecord === (string) $plot->getKey())
                             ->sort(10))
                         ->all()
                 ),
@@ -87,10 +85,7 @@ class LandPlotResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            DocumentsRelationManager::class,
-            ViabilityRelationManager::class,
-        ];
+        return [];
     }
 
     public static function getPages(): array
