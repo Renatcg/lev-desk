@@ -40,7 +40,8 @@
                 @foreach ($items as $document)
                     @php
                         $path = (string) $document->path;
-                        $url = filled($path) ? Storage::disk('public')->url($path) : null;
+                        $fileExists = filled($path) && Storage::disk('public')->exists($path);
+                        $url = $fileExists ? Storage::disk('public')->url($path) : null;
                         $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
                         $canPreview = $url && in_array($extension, ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif']);
                     @endphp
@@ -70,7 +71,8 @@
         @forelse ($documents as $document)
             @php
                 $path = (string) $document->path;
-                $url = filled($path) ? Storage::disk('public')->url($path) : null;
+                $fileExists = filled($path) && Storage::disk('public')->exists($path);
+                $url = $fileExists ? Storage::disk('public')->url($path) : null;
                 $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
                 $canPreview = $url && in_array($extension, ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif']);
             @endphp
@@ -107,7 +109,13 @@
                     @else
                         <div class="lev-doc-preview__fallback">
                             <x-filament::icon icon="heroicon-o-document" class="lev-doc-preview__fallback-icon" />
-                            <p>Este tipo de arquivo não tem visualização embutida.</p>
+                            <p>
+                                @if (! $fileExists)
+                                    Arquivo não encontrado no storage.
+                                @else
+                                    Este tipo de arquivo não tem visualização embutida.
+                                @endif
+                            </p>
                         </div>
                     @endif
                 </div>

@@ -4,10 +4,8 @@ namespace App\Filament\Resources\LandPlots\Schemas;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -143,64 +141,6 @@ class LandPlotForm
                             ->icon(Heroicon::OutlinedDocumentText)
                             ->schema([
                                 View::make('filament.components.land-plot-document-explorer')
-                                    ->columnSpanFull(),
-                                Repeater::make('documents')
-                                    ->label('Gerenciar documentos')
-                                    ->relationship()
-                                    ->addActionLabel('Adicionar documento')
-                                    ->itemLabel(fn (array $state): ?string => $state['name'] ?? 'Documento')
-                                    ->reorderable(false)
-                                    ->collapsible()
-                                    ->collapsed()
-                                    ->columns(3)
-                                    ->schema([
-                                        Select::make('type')
-                                            ->label('Tipo')
-                                            ->options([
-                                                'rgi' => 'RGI / Matrícula',
-                                                'topography' => 'Topografia',
-                                                'certificate' => 'Certidão',
-                                                'cnd' => 'CND',
-                                                'iptu' => 'Carnê de IPTU',
-                                                'viability' => 'PDF de viabilidade',
-                                                'contract' => 'Contrato',
-                                                'other' => 'Outro',
-                                            ])
-                                            ->required(),
-                                        TextInput::make('name')
-                                            ->label('Nome')
-                                            ->required()
-                                            ->maxLength(255),
-                                        DatePicker::make('expires_at')
-                                            ->label('Vencimento'),
-                                        FileUpload::make('path')
-                                            ->label('Arquivo')
-                                            ->disk('public')
-                                            ->directory('plot-documents')
-                                            ->downloadable()
-                                            ->openable()
-                                            ->preserveFilenames()
-                                            ->required()
-                                            ->columnSpanFull(),
-                                        Select::make('status')
-                                            ->label('Status')
-                                            ->options([
-                                                'pending_review' => 'Pendente de revisão',
-                                                'valid' => 'Válido',
-                                                'expires_soon' => 'Próximo do vencimento',
-                                                'expired' => 'Vencido',
-                                            ])
-                                            ->default('pending_review')
-                                            ->required(),
-                                        TextInput::make('ai_confidence')
-                                            ->label('Confiança da IA')
-                                            ->numeric()
-                                            ->suffix('%'),
-                                        Textarea::make('ai_extracted_data')
-                                            ->label('Dados extraídos pela IA')
-                                            ->rows(5)
-                                            ->columnSpanFull(),
-                                    ])
                                     ->columnSpanFull(),
                             ]),
                         Tab::make('Viabilidade')
