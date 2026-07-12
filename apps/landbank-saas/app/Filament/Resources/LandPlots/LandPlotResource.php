@@ -36,7 +36,6 @@ class LandPlotResource extends Resource
             return parent::getNavigationItems();
         }
 
-        $activeRoutePattern = static::getNavigationItemActiveRoutePattern();
         $request = request();
         $activeRecord = $request->route('record');
 
@@ -46,23 +45,25 @@ class LandPlotResource extends Resource
             ->limit(30)
             ->get();
 
-        return [
-            NavigationItem::make(static::getNavigationLabel())
+        if ($plots->isEmpty()) {
+            return [
+                NavigationItem::make('Novo terreno')
+                    ->group(static::getNavigationGroup())
+                    ->icon(static::getNavigationIcon())
+                    ->isActiveWhen(fn (): bool => $request->routeIs(static::getRouteBaseName().'.create'))
+                    ->sort(static::getNavigationSort())
+                    ->url(static::getUrl('create')),
+            ];
+        }
+
+        return $plots
+            ->map(fn (LandPlot $plot): NavigationItem => NavigationItem::make($plot->name)
                 ->group(static::getNavigationGroup())
                 ->icon(static::getNavigationIcon())
-                ->isActiveWhen(fn (): bool => $request->routeIs($activeRoutePattern))
-                ->badge((string) $plots->count(), color: 'primary')
-                ->sort(static::getNavigationSort())
-                ->url(static::getNavigationUrl())
-                ->childItems(
-                    $plots
-                        ->map(fn (LandPlot $plot): NavigationItem => NavigationItem::make($plot->name)
-                            ->url(static::getUrl('edit', ['record' => $plot]))
-                            ->isActiveWhen(fn (): bool => $request->routeIs(static::getRouteBaseName().'.edit') && (string) $activeRecord === (string) $plot->getKey())
-                            ->sort(10))
-                        ->all()
-                ),
-        ];
+                ->url(static::getUrl('edit', ['record' => $plot]))
+                ->isActiveWhen(fn (): bool => $request->routeIs(static::getRouteBaseName().'.edit') && (string) $activeRecord === (string) $plot->getKey())
+                ->sort(static::getNavigationSort() + 10))
+            ->all();
     }
 
     public static function getEloquentQuery(): Builder

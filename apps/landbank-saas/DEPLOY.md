@@ -42,6 +42,8 @@ No host Laravel, configure:
 - `DB_CONNECTION=pgsql`
 - `DB_URL=${{Postgres.DATABASE_URL}}`
 - `QUEUE_CONNECTION=database`
+- `OPENAI_API_KEY=sua-chave-da-openai`
+- `OPENAI_MODEL=gpt-5.5`
 
 Se estiver acessando diretamente pelo domínio do Railway, use a URL do Railway em `APP_URL` e `ASSET_URL`. O upload de documentos usa URLs assinadas do Livewire e falha quando essas variáveis apontam para um domínio diferente do que está aberto no navegador.
 
