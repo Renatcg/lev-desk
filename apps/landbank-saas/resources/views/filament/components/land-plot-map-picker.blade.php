@@ -1,5 +1,6 @@
 @php
     $mapId = 'lev-map-picker-' . md5(($address ?? '') . '|' . ($latitude ?? '') . '|' . ($longitude ?? '') . '|' . uniqid('', true));
+    $modalId = $mapId . '-modal';
 @endphp
 
 <div
@@ -11,7 +12,16 @@
     data-longitude="{{ $longitude }}"
 >
     @if (filled($apiKey))
-        <div class="lev-map-picker__canvas"></div>
+        <button class="lev-map-picker__preview" type="button" data-map-open="{{ $modalId }}">
+            <span class="lev-map-picker__canvas" data-map-canvas="preview"></span>
+        </button>
+
+        <div class="lev-map-picker__modal" id="{{ $modalId }}" aria-modal="true" role="dialog">
+            <div class="lev-map-picker__modal-panel">
+                <button class="lev-map-picker__modal-close" type="button" data-map-close="{{ $modalId }}">Fechar</button>
+                <div class="lev-map-picker__modal-canvas" data-map-canvas="modal"></div>
+            </div>
+        </div>
     @else
         <div class="lev-map-preview">
             <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="{{ $embedUrl }}"></iframe>
@@ -37,7 +47,15 @@
                     return;
                 }
 
-                input.value = value;
+                const prototype = Object.getPrototypeOf(input);
+                const valueSetter = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
+
+                if (valueSetter) {
+                    valueSetter.call(input, value);
+                } else {
+                    input.value = value;
+                }
+
                 input.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertReplacementText', data: String(value) }));
                 input.dispatchEvent(new Event('change', { bubbles: true }));
                 input.dispatchEvent(new Event('blur', { bubbles: true }));
@@ -112,7 +130,9 @@
             };
 
             loadGoogleMaps().then(() => {
-                const canvas = root.querySelector('.lev-map-picker__canvas');
+                const previewCanvas = root.querySelector('[data-map-canvas="preview"]');
+                const modal = document.getElementById(@js($modalId));
+                const modalCanvas = root.querySelector('[data-map-canvas="modal"]');
                 const geocoder = new google.maps.Geocoder();
                 const parsedLat = Number.parseFloat(root.dataset.latitude);
                 const parsedLng = Number.parseFloat(root.dataset.longitude);
@@ -120,17 +140,32 @@
                 const fallbackCenter = { lat: -22.9068, lng: -43.1729 };
                 const initialCenter = hasCoordinates ? { lat: parsedLat, lng: parsedLng } : fallbackCenter;
 
-                const map = new google.maps.Map(canvas, {
+                const mapOptions = {
                     center: initialCenter,
                     mapTypeControl: true,
                     mapTypeId: 'satellite',
                     streetViewControl: true,
                     zoom: hasCoordinates ? 18 : 15,
+                };
+
+                const previewMap = new google.maps.Map(previewCanvas, {
+                    ...mapOptions,
+                    disableDefaultUI: true,
+                    gestureHandling: 'none',
+                    keyboardShortcuts: false,
                 });
 
-                const marker = new google.maps.Marker({
+                const modalMap = new google.maps.Map(modalCanvas, mapOptions);
+
+                const previewMarker = new google.maps.Marker({
                     draggable: true,
-                    map,
+                    map: previewMap,
+                    position: initialCenter,
+                });
+
+                const modalMarker = new google.maps.Marker({
+                    draggable: true,
+                    map: modalMap,
                     position: initialCenter,
                 });
 
@@ -138,8 +173,10 @@
                     const lat = location.lat();
                     const lng = location.lng();
 
-                    marker.setPosition(location);
-                    map.panTo(location);
+                    previewMarker.setPosition(location);
+                    modalMarker.setPosition(location);
+                    previewMap.panTo(location);
+                    modalMap.panTo(location);
                     setField('latitude', lat.toFixed(8));
                     setField('longitude', lng.toFixed(8));
 
@@ -152,8 +189,26 @@
                     });
                 };
 
-                map.addListener('click', (event) => applyLocation(event.latLng));
-                marker.addListener('dragend', (event) => applyLocation(event.latLng));
+                modalMap.addListener('click', (event) => applyLocation(event.latLng));
+                modalMarker.addListener('dragend', (event) => applyLocation(event.latLng));
+
+                root.querySelector('[data-map-open]')?.addEventListener('click', () => {
+                    modal?.classList.add('is-open');
+                    setTimeout(() => {
+                        google.maps.event.trigger(modalMap, 'resize');
+                        modalMap.setCenter(modalMarker.getPosition());
+                    }, 50);
+                });
+
+                root.querySelector('[data-map-close]')?.addEventListener('click', () => {
+                    modal?.classList.remove('is-open');
+                });
+
+                modal?.addEventListener('click', (event) => {
+                    if (event.target === modal) {
+                        modal.classList.remove('is-open');
+                    }
+                });
 
                 if (!hasCoordinates && root.dataset.address) {
                     geocoder.geocode({ address: root.dataset.address }, (results, status) => {
@@ -161,8 +216,10 @@
                             return;
                         }
 
-                        marker.setPosition(results[0].geometry.location);
-                        map.setCenter(results[0].geometry.location);
+                        previewMarker.setPosition(results[0].geometry.location);
+                        modalMarker.setPosition(results[0].geometry.location);
+                        previewMap.setCenter(results[0].geometry.location);
+                        modalMap.setCenter(results[0].geometry.location);
                     });
                 }
             });

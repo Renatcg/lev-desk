@@ -61,64 +61,56 @@ class LandPlotForm
                         Tab::make('Endereço e mapa')
                             ->icon(Heroicon::OutlinedMap)
                             ->schema([
-                                Placeholder::make('google_maps_preview')
-                                    ->label('Mapa')
-                                    ->hiddenLabel()
-                                    ->content(fn (Get $get): HtmlString => self::googleMapsPreview($get))
-                                    ->columnSpanFull(),
-                                Section::make('Endereço')
-                                    ->columns([
-                                        'default' => 1,
-                                        'md' => 4,
-                                        'xl' => 6,
-                                    ])
+                                Grid::make([
+                                    'default' => 1,
+                                    'xl' => 2,
+                                ])
+                                    ->extraAttributes(['class' => 'lev-address-map-grid'])
                                     ->schema([
-                                        TextInput::make('zip_code')
-                                            ->label('CEP')
-                                            ->live(onBlur: true)
-                                            ->maxLength(9)
-                                            ->extraInputAttributes(['data-landplot-field' => 'zip_code'])
-                                            ->afterStateUpdated(fn (Set $set, ?string $state) => self::fillAddressFromZipCode($set, $state))
-                                            ->suffixActions([
-                                                Action::make('fillAddress')
-                                                    ->icon(Heroicon::ArrowPath)
-                                                    ->tooltip('Buscar CEP')
-                                                    ->action(fn (Set $set, Get $get) => self::fillAddressFromZipCode($set, $get('zip_code'))),
-                                                Action::make('openGoogleMaps')
-                                                    ->icon(Heroicon::MapPin)
-                                                    ->tooltip('Abrir no Google Maps')
-                                                    ->url(fn (Get $get): string => self::googleMapsSearchUrl($get), shouldOpenInNewTab: true),
-                                            ]),
-                                        TextInput::make('street')
-                                            ->label('Logradouro')
-                                            ->live(onBlur: true)
-                                            ->extraInputAttributes(['data-landplot-field' => 'street'])
-                                            ->columnSpan([
+                                        Section::make('Endereço')
+                                            ->columns([
+                                                'default' => 1,
                                                 'md' => 2,
-                                                'xl' => 3,
-                                            ]),
-                                        TextInput::make('number')
-                                            ->label('Número')
-                                            ->live(onBlur: true)
-                                            ->extraInputAttributes(['data-landplot-field' => 'number']),
-                                        TextInput::make('district')
-                                            ->label('Bairro')
-                                            ->live(onBlur: true)
-                                            ->extraInputAttributes(['data-landplot-field' => 'district']),
-                                        TextInput::make('city')
-                                            ->label('Cidade')
-                                            ->live(onBlur: true)
-                                            ->extraInputAttributes(['data-landplot-field' => 'city']),
-                                        TextInput::make('state')
-                                            ->label('UF')
-                                            ->live(onBlur: true)
-                                            ->extraInputAttributes(['data-landplot-field' => 'state'])
-                                            ->maxLength(2),
-                                        Grid::make([
-                                            'default' => 1,
-                                            'md' => 2,
-                                        ])
+                                            ])
                                             ->schema([
+                                                TextInput::make('zip_code')
+                                                    ->label('CEP')
+                                                    ->live(onBlur: true)
+                                                    ->maxLength(9)
+                                                    ->extraInputAttributes(['data-landplot-field' => 'zip_code'])
+                                                    ->afterStateUpdated(fn (Set $set, ?string $state) => self::fillAddressFromZipCode($set, $state))
+                                                    ->suffixActions([
+                                                        Action::make('fillAddress')
+                                                            ->icon(Heroicon::ArrowPath)
+                                                            ->tooltip('Buscar CEP')
+                                                            ->action(fn (Set $set, Get $get) => self::fillAddressFromZipCode($set, $get('zip_code'))),
+                                                        Action::make('openGoogleMaps')
+                                                            ->icon(Heroicon::MapPin)
+                                                            ->tooltip('Abrir no Google Maps')
+                                                            ->url(fn (Get $get): string => self::googleMapsSearchUrl($get), shouldOpenInNewTab: true),
+                                                    ]),
+                                                TextInput::make('street')
+                                                    ->label('Logradouro')
+                                                    ->live(onBlur: true)
+                                                    ->extraInputAttributes(['data-landplot-field' => 'street'])
+                                                    ->columnSpanFull(),
+                                                TextInput::make('number')
+                                                    ->label('Número')
+                                                    ->live(onBlur: true)
+                                                    ->extraInputAttributes(['data-landplot-field' => 'number']),
+                                                TextInput::make('district')
+                                                    ->label('Bairro')
+                                                    ->live(onBlur: true)
+                                                    ->extraInputAttributes(['data-landplot-field' => 'district']),
+                                                TextInput::make('city')
+                                                    ->label('Cidade')
+                                                    ->live(onBlur: true)
+                                                    ->extraInputAttributes(['data-landplot-field' => 'city']),
+                                                TextInput::make('state')
+                                                    ->label('UF')
+                                                    ->live(onBlur: true)
+                                                    ->extraInputAttributes(['data-landplot-field' => 'state'])
+                                                    ->maxLength(2),
                                                 TextInput::make('latitude')
                                                     ->numeric()
                                                     ->live(onBlur: true)
@@ -129,11 +121,11 @@ class LandPlotForm
                                                     ->live(onBlur: true)
                                                     ->extraInputAttributes(['data-landplot-field' => 'longitude'])
                                                     ->label('Longitude'),
-                                            ])
-                                            ->columnSpan([
-                                                'md' => 2,
-                                                'xl' => 2,
                                             ]),
+                                        Placeholder::make('google_maps_preview')
+                                            ->label('Mapa')
+                                            ->hiddenLabel()
+                                            ->content(fn (Get $get): HtmlString => self::googleMapsPreview($get)),
                                     ]),
                             ]),
                         Tab::make('IPTU e dívidas')

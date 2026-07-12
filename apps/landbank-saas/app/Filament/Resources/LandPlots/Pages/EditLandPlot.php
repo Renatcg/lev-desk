@@ -10,6 +10,11 @@ class EditLandPlot extends EditRecord
 {
     protected static string $resource = LandPlotResource::class;
 
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
+
     protected function getHeaderActions(): array
     {
         return [
