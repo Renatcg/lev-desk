@@ -7,6 +7,7 @@ use App\Support\FilamentPasswordResetLink;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Password;
@@ -17,18 +18,29 @@ class UsersTable
     {
         return $table
             ->columns([
-                TextColumn::make('name')->label('Nome')->searchable()->sortable(),
-                TextColumn::make('email')->label('E-mail')->searchable()->sortable(),
+                View::make('filament.tables.user-card'),
+                TextColumn::make('name')->label('Nome')->searchable()->sortable()->hidden(),
+                TextColumn::make('email')->label('E-mail')->searchable()->sortable()->hidden(),
                 TextColumn::make('company.name')
                     ->label('Empresa')
                     ->searchable()
+                    ->hidden()
                     ->visible(fn (): bool => auth()->user()?->isLevAdmin() ?? false),
                 TextColumn::make('role')
                     ->label('Função')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => UserResource::roleLabel($state)),
-                TextColumn::make('created_at')->label('Criado em')->dateTime('d/m/Y H:i')->sortable(),
+                    ->formatStateUsing(fn (?string $state): string => UserResource::roleLabel($state))
+                    ->hidden(),
+                TextColumn::make('created_at')->label('Criado em')->dateTime('d/m/Y H:i')->sortable()->hidden(),
             ])
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+                '2xl' => 4,
+            ])
+            ->recordUrl(fn ($record): ?string => UserResource::canEdit($record)
+                ? route('filament.admin.resources.users.edit', ['record' => $record])
+                : null)
             ->recordActions([
                 EditAction::make()
                     ->visible(fn ($record): bool => UserResource::canEdit($record)),

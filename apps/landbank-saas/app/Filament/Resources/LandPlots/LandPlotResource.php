@@ -9,7 +9,6 @@ use App\Filament\Resources\LandPlots\Schemas\LandPlotForm;
 use App\Filament\Resources\LandPlots\Tables\LandPlotsTable;
 use App\Models\LandPlot;
 use BackedEnum;
-use Filament\Navigation\NavigationItem;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -26,45 +25,9 @@ class LandPlotResource extends Resource
 
     protected static ?string $pluralModelLabel = 'terrenos';
 
-    protected static ?string $navigationLabel = 'Terrenos';
+    protected static ?string $navigationLabel = 'Landbank';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Landbank';
-
-    public static function getNavigationItems(): array
-    {
-        if (! auth()->check()) {
-            return parent::getNavigationItems();
-        }
-
-        $request = request();
-        $activeRecord = $request->route('record');
-
-        $plots = static::getEloquentQuery()
-            ->select(['id', 'name'])
-            ->orderBy('name')
-            ->limit(30)
-            ->get();
-
-        if ($plots->isEmpty()) {
-            return [
-                NavigationItem::make('Novo terreno')
-                    ->group(static::getNavigationGroup())
-                    ->icon(static::getNavigationIcon())
-                    ->isActiveWhen(fn (): bool => $request->routeIs(static::getRouteBaseName().'.create'))
-                    ->sort(static::getNavigationSort())
-                    ->url(static::getUrl('create')),
-            ];
-        }
-
-        return $plots
-            ->map(fn (LandPlot $plot): NavigationItem => NavigationItem::make($plot->name)
-                ->group(static::getNavigationGroup())
-                ->icon(static::getNavigationIcon())
-                ->url(static::getUrl('edit', ['record' => $plot]))
-                ->isActiveWhen(fn (): bool => $request->routeIs(static::getRouteBaseName().'.edit') && (string) $activeRecord === (string) $plot->getKey())
-                ->sort(static::getNavigationSort() + 10))
-            ->all();
-    }
+    protected static ?int $navigationSort = 20;
 
     public static function getEloquentQuery(): Builder
     {
