@@ -1,5 +1,6 @@
 @php
     use Illuminate\Support\Facades\Storage;
+    use Illuminate\Support\Str;
 
     $record = $getRecord();
     $documents = $record?->documents()
@@ -284,6 +285,7 @@
             @php
                 $path = (string) $document->path;
                 $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                $isExternalUrl = Str::startsWith($path, ['http://', 'https://']);
             @endphp
 
             <button
@@ -293,7 +295,7 @@
                 x-on:click="selected = '{{ $document->getKey() }}'"
             >
                 <x-filament::icon
-                    :icon="$extension === 'pdf' ? 'heroicon-o-document-text' : 'heroicon-o-photo'"
+                    :icon="$extension === 'pdf' || $isExternalUrl ? 'heroicon-o-document-text' : 'heroicon-o-photo'"
                     class="lev-doc-explorer__item-icon"
                 />
                 <span>{{ $document->name }}</span>
@@ -322,8 +324,9 @@
         @forelse ($documents as $document)
             @php
                 $path = (string) $document->path;
-                $fileExists = filled($path) && Storage::disk('public')->exists($path);
-                $url = filled($path) ? Storage::disk('public')->url($path) : null;
+                $isExternalUrl = Str::startsWith($path, ['http://', 'https://']);
+                $fileExists = $isExternalUrl || (filled($path) && Storage::disk('public')->exists($path));
+                $url = $isExternalUrl ? $path : (filled($path) ? Storage::disk('public')->url($path) : null);
                 $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
                 $canPreview = $url && in_array($extension, ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif']);
             @endphp

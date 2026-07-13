@@ -31,6 +31,13 @@ return [
         'model' => env('OPENAI_MODEL', 'gpt-5.5'),
     ],
 
+    'vercel_blob' => [
+        'token' => env('BLOB_READ_WRITE_TOKEN'),
+        'access' => env('VERCEL_BLOB_ACCESS', 'public'),
+        'prefix' => env('VERCEL_BLOB_PREFIX', 'landbank'),
+        'node_binary' => env('NODE_BINARY', 'node'),
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

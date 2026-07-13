@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Services\VercelBlobStorage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class PlotDocument extends Model
 {
@@ -24,6 +27,49 @@ class PlotDocument extends Model
             'expires_at' => 'date',
             'ai_confidence' => 'decimal:2',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function (PlotDocument $document): void {
+            $blob = app(VercelBlobStorage::class);
+            $path = (string) $document->path;
+
+            if (! $blob->enabled() || blank($path) || $blob->isUrl($path)) {
+                return;
+            }
+
+            try {
+                $uploaded = $blob->uploadPlotDocument($document);
+
+                $document->forceFill([
+                    'path' => $uploaded['url'],
+                ])->saveQuietly();
+
+                Storage::disk('public')->delete($path);
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        });
+
+        static::deleting(function (PlotDocument $document): void {
+            $blob = app(VercelBlobStorage::class);
+            $path = (string) $document->path;
+
+            if (! $blob->enabled() || blank($path)) {
+                return;
+            }
+
+            try {
+                if ($blob->isUrl($path)) {
+                    $blob->delete($path);
+                } else {
+                    Storage::disk('public')->delete($path);
+                }
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        });
     }
 
     public function landPlot(): BelongsTo

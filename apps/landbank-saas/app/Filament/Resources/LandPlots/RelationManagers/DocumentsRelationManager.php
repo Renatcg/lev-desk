@@ -2,13 +2,10 @@
 
 namespace App\Filament\Resources\LandPlots\RelationManagers;
 
-use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateAction;
-use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -20,6 +17,8 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class DocumentsRelationManager extends RelationManager
 {
@@ -50,8 +49,13 @@ class DocumentsRelationManager extends RelationManager
                     ->maxLength(255),
                 FileUpload::make('path')
                     ->label('Arquivo')
+                    ->disk('public')
                     ->directory('plot-documents')
                     ->downloadable()
+                    ->fetchFileInformation(false)
+                    ->getDownloadableFileUrlUsing(fn (string $file): string => self::fileUrl($file))
+                    ->getOpenableFileUrlUsing(fn (string $file): string => self::fileUrl($file))
+                    ->getUploadedFileUsing(fn (string $file): array => self::uploadedFileInfo($file))
                     ->openable()
                     ->required()
                     ->columnSpanFull(),
@@ -127,5 +131,36 @@ class DocumentsRelationManager extends RelationManager
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /**
+     * @return array{name: string, size: int, type: string, url: string}
+     */
+    protected static function uploadedFileInfo(string $file): array
+    {
+        return [
+            'name' => basename((string) parse_url($file, PHP_URL_PATH)) ?: basename($file),
+            'size' => 0,
+            'type' => self::mimeType($file),
+            'url' => self::fileUrl($file),
+        ];
+    }
+
+    protected static function fileUrl(string $file): string
+    {
+        return Str::startsWith($file, ['http://', 'https://'])
+            ? $file
+            : Storage::disk('public')->url($file);
+    }
+
+    protected static function mimeType(string $file): string
+    {
+        return match (strtolower(pathinfo((string) parse_url($file, PHP_URL_PATH), PATHINFO_EXTENSION))) {
+            'pdf' => 'application/pdf',
+            'png' => 'image/png',
+            'jpg', 'jpeg' => 'image/jpeg',
+            'webp' => 'image/webp',
+            default => 'application/octet-stream',
+        };
     }
 }
