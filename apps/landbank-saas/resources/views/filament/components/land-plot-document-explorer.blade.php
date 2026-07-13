@@ -328,7 +328,7 @@
                 $fileExists = $isExternalUrl || (filled($path) && Storage::disk('public')->exists($path));
                 $url = $isExternalUrl ? $path : (filled($path) ? Storage::disk('public')->url($path) : null);
                 $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                $canPreview = $url && in_array($extension, ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif']);
+                $canPreview = $fileExists && $url && in_array($extension, ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif']);
             @endphp
 
             <article
@@ -342,7 +342,7 @@
                     </div>
 
                     <div class="lev-doc-preview__actions">
-                        @if ($url)
+                        @if ($fileExists && $url)
                             <a class="lev-doc-preview__action" href="{{ $url }}" download title="Baixar">
                                 <x-filament::icon icon="heroicon-o-arrow-down-tray" class="lev-doc-preview__action-icon" />
                             </a>
@@ -368,7 +368,7 @@
                             <x-filament::icon icon="heroicon-o-document" class="lev-doc-preview__fallback-icon" />
                             <p>
                                 @if (! $fileExists)
-                                    Arquivo não encontrado no storage.
+                                    Este arquivo era local e não está mais disponível após o deploy. Reenvie o documento para salvá-lo no Vercel Blob.
                                 @else
                                     Este tipo de arquivo não tem visualização embutida.
                                 @endif
