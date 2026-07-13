@@ -21,57 +21,63 @@ class PlotDocumentForm
             ->components([
                 Section::make('Documento')
                     ->columns(2)
-                    ->schema([
-                        Select::make('land_plot_id')
-                            ->label('Terreno')
-                            ->options(fn () => LandPlot::query()
-                                ->when(! auth()->user()?->isLevAdmin(), fn ($query) => $query->where('company_id', auth()->user()?->company_id))
-                                ->orderBy('name')
-                                ->pluck('name', 'id'))
-                            ->searchable()
-                            ->required(),
-                        Select::make('type')
-                            ->label('Tipo')
-                            ->options([
-                                'rgi' => 'RGI / Matrícula',
-                                'topography' => 'Topografia',
-                                'certificate' => 'Certidão',
-                                'cnd' => 'CND',
-                                'iptu' => 'Carnê de IPTU',
-                                'viability' => 'PDF de viabilidade',
-                                'contract' => 'Contrato',
-                                'other' => 'Outro',
-                            ])
-                            ->required(),
-                        TextInput::make('name')->label('Nome')->required()->columnSpan(2),
-                        FileUpload::make('path')
-                            ->label('Arquivo')
-                            ->disk('public')
-                            ->directory('plot-documents')
-                            ->downloadable()
-                            ->fetchFileInformation(false)
-                            ->getDownloadableFileUrlUsing(fn (string $file): string => self::fileUrl($file))
-                            ->getOpenableFileUrlUsing(fn (string $file): string => self::fileUrl($file))
-                            ->getUploadedFileUsing(fn (string $file): array => self::uploadedFileInfo($file))
-                            ->openable()
-                            ->preserveFilenames()
-                            ->required()
-                            ->columnSpan(2),
-                        DatePicker::make('expires_at')->label('Vencimento'),
-                        Select::make('status')
-                            ->label('Status')
-                            ->options([
-                                'pending_review' => 'Pendente de revisão',
-                                'valid' => 'Válido',
-                                'expires_soon' => 'Próximo do vencimento',
-                                'expired' => 'Vencido',
-                            ])
-                            ->default('pending_review')
-                            ->required(),
-                        TextInput::make('ai_confidence')->label('Confiança da IA')->numeric()->suffix('%'),
-                        Textarea::make('ai_extracted_data')->label('Dados extraídos pela IA')->rows(5)->columnSpanFull(),
-                    ]),
+                    ->schema(self::documentFields()),
             ]);
+    }
+
+    public static function documentFields(bool $includeLandPlot = true): array
+    {
+        return [
+            Select::make('land_plot_id')
+                ->label('Terreno')
+                ->options(fn () => LandPlot::query()
+                    ->when(! auth()->user()?->isLevAdmin(), fn ($query) => $query->where('company_id', auth()->user()?->company_id))
+                    ->orderBy('name')
+                    ->pluck('name', 'id'))
+                ->searchable()
+                ->required()
+                ->hidden(! $includeLandPlot),
+            Select::make('type')
+                ->label('Tipo')
+                ->options([
+                    'rgi' => 'RGI / Matrícula',
+                    'topography' => 'Topografia',
+                    'certificate' => 'Certidão',
+                    'cnd' => 'CND',
+                    'iptu' => 'Carnê de IPTU',
+                    'viability' => 'PDF de viabilidade',
+                    'contract' => 'Contrato',
+                    'other' => 'Outro',
+                ])
+                ->required(),
+            TextInput::make('name')->label('Nome')->required()->columnSpan(2),
+            FileUpload::make('path')
+                ->label('Arquivo')
+                ->disk('public')
+                ->directory('plot-documents')
+                ->downloadable()
+                ->fetchFileInformation(false)
+                ->getDownloadableFileUrlUsing(fn (string $file): string => self::fileUrl($file))
+                ->getOpenableFileUrlUsing(fn (string $file): string => self::fileUrl($file))
+                ->getUploadedFileUsing(fn (string $file): array => self::uploadedFileInfo($file))
+                ->openable()
+                ->preserveFilenames()
+                ->required()
+                ->columnSpan(2),
+            DatePicker::make('expires_at')->label('Vencimento'),
+            Select::make('status')
+                ->label('Status')
+                ->options([
+                    'pending_review' => 'Pendente de revisão',
+                    'valid' => 'Válido',
+                    'expires_soon' => 'Próximo do vencimento',
+                    'expired' => 'Vencido',
+                ])
+                ->default('pending_review')
+                ->required(),
+            TextInput::make('ai_confidence')->label('Confiança da IA')->numeric()->suffix('%'),
+            Textarea::make('ai_extracted_data')->label('Dados extraídos pela IA')->rows(5)->columnSpanFull(),
+        ];
     }
 
     /**

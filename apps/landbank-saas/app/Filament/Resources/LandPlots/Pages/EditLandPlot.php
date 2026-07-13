@@ -3,8 +3,11 @@
 namespace App\Filament\Resources\LandPlots\Pages;
 
 use App\Filament\Resources\LandPlots\LandPlotResource;
+use App\Filament\Resources\PlotDocuments\Schemas\PlotDocumentForm;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Icons\Heroicon;
 
 class EditLandPlot extends EditRecord
 {
@@ -20,5 +23,20 @@ class EditLandPlot extends EditRecord
         return [
             DeleteAction::make(),
         ];
+    }
+
+    public function addDocumentAction(): Action
+    {
+        return Action::make('addDocument')
+            ->label('Adicionar documento')
+            ->icon(Heroicon::OutlinedDocumentPlus)
+            ->color('primary')
+            ->modalHeading('Adicionar documento')
+            ->modalSubmitActionLabel('Salvar documento')
+            ->form(PlotDocumentForm::documentFields(includeLandPlot: false))
+            ->action(function (array $data): void {
+                $this->record->documents()->create($data);
+                $this->record->unsetRelation('documents');
+            });
     }
 }
