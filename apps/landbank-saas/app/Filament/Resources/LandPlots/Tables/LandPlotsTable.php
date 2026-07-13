@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\LandPlots\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
@@ -50,11 +48,6 @@ class LandPlotsTable
             ])
             ->recordActions([
                 EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }
