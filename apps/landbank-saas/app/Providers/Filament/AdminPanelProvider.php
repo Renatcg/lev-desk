@@ -44,8 +44,10 @@ class AdminPanelProvider extends PanelProvider
                 'info' => Color::hex('#78C4C8'),
             ])
             ->brandName('lev')
-            ->sidebarWidth('17.5rem')
-            ->collapsedSidebarWidth('2.75rem')
+            ->brandLogo(asset('images/lev-logo.png'))
+            ->brandLogoHeight('2rem')
+            ->sidebarWidth('16rem')
+            ->collapsedSidebarWidth('4rem')
             ->sidebarCollapsibleOnDesktop()
             ->sidebarFullyCollapsibleOnDesktop()
             ->assets([
@@ -109,6 +111,10 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,
                 fn (): string => view('filament.components.topbar-user-name')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::SIDEBAR_FOOTER,
+                fn (): string => view('filament.components.sidebar-user-footer')->render(),
             )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
