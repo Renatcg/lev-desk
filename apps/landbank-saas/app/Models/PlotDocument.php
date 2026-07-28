@@ -31,7 +31,7 @@ class PlotDocument extends Model
 
     protected static function booted(): void
     {
-        static::saved(function (PlotDocument $document): void {
+        static::saving(function (PlotDocument $document): void {
             $blob = app(VercelBlobStorage::class);
             $path = (string) $document->path;
 
@@ -39,17 +39,11 @@ class PlotDocument extends Model
                 return;
             }
 
-            try {
-                $uploaded = $blob->uploadPlotDocument($document);
+            $uploaded = $blob->uploadPlotDocument($document);
 
-                $document->forceFill([
-                    'path' => $uploaded['url'],
-                ])->saveQuietly();
+            $document->path = $uploaded['url'];
 
-                Storage::disk('public')->delete($path);
-            } catch (Throwable $exception) {
-                report($exception);
-            }
+            Storage::disk('public')->delete($path);
         });
 
         static::deleting(function (PlotDocument $document): void {

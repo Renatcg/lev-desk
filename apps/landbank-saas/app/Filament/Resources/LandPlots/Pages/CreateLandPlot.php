@@ -16,7 +16,11 @@ class CreateLandPlot extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['company_id'] = auth()->user()?->company_id;
+        $user = auth()->user();
+
+        if (! $user?->isLevAdmin()) {
+            $data['company_id'] = $user?->company_id;
+        }
 
         return $data;
     }

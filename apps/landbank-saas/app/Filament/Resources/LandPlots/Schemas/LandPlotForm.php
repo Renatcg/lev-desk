@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\LandPlots\Schemas;
 
+use App\Models\Company;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
@@ -28,8 +29,17 @@ class LandPlotForm
     {
         return $schema
             ->components([
+                Select::make('company_id')
+                    ->label('Empresa')
+                    ->options(fn () => Company::query()->orderBy('name')->pluck('name', 'id'))
+                    ->searchable()
+                    ->required()
+                    ->visible(fn (): bool => auth()->user()?->isLevAdmin() ?? false)
+                    ->dehydrated(fn (): bool => auth()->user()?->isLevAdmin() ?? false),
                 Hidden::make('company_id')
-                    ->default(fn () => auth()->user()?->company_id),
+                    ->default(fn () => auth()->user()?->company_id)
+                    ->visible(fn (): bool => ! (auth()->user()?->isLevAdmin() ?? false))
+                    ->dehydrated(fn (): bool => ! (auth()->user()?->isLevAdmin() ?? false)),
                 Tabs::make('Cadastro do terreno')
                     ->id('land-plot-form-tabs')
                     ->persistTab()
